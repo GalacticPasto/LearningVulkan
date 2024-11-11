@@ -117,6 +117,7 @@ class HelloTriangleApplication
         createLogicalDevice();
         createSwapChain();
         createImageViews();
+        createGraphicsPipeline();
     }
 
     void mainLoop()
@@ -597,6 +598,10 @@ class HelloTriangleApplication
         std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
 
         return VK_FALSE;
+    }
+
+    void createGraphicsPipeline()
+    {
     }
 };
 
