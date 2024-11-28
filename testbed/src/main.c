@@ -1,6 +1,6 @@
-#include <defines.h>
-#include <platform/platform.h>
 #include <stdio.h>
+
+#include <platform/platform.h>
 
 int main()
 {

@@ -63,6 +63,7 @@ STATIC_ASSERT(sizeof(f64) == 8, "Expected f64 to be 8 bytes.");
 #define DAPI __attribute__((visibility("default")))
 #endif
 #else
+
 // Imports
 #ifdef _MSC_VER
 #define DAPI __declspec(dllimport)
