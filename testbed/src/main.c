@@ -4,12 +4,12 @@
 
 int main()
 {
-    b8            quitFlagged = FALSE;
+    b8            quitFlagged = TRUE;
     platformState state = {};
     if (platformStartup(&state))
     {
         printf("sucessfull platform startup\n");
-        while (!quitFlagged)
+        while (quitFlagged)
         {
             quitFlagged = platformPumpMessages(&state);
         }
