@@ -1,3 +1,4 @@
+#include "core/logger.h"
 #include "platform/platform.h"
 
 #ifdef DPLATFORM_WINDOWS
@@ -98,6 +99,37 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
     }
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
+}
+
+void platformConsoleWriteError(const char *message, u8 level)
+{
+    HANDLE consoleHandle = GetStdHandle(STD_ERROR_HANDLE);
+    // FATAL,ERROR,WARN,INFO,DEBUG,TRACE
+    static u8 levels[6] = {64, 4, 6, 2, 1, 8};
+
+    SetConsoleTextAttribute(consoleHandle, levels[level]);
+    OutputDebugStringA(message);
+
+    u64     length = strlen(message);
+    LPDWORD numberWritten = 0;
+    WriteConsoleA(GetStdHandle(STD_ERROR_HANDLE), message, (DWORD)length, numberWritten, 0);
+    SetConsoleTextAttribute(consoleHandle, 7);
+}
+void platformConsoleWrite(const char *message, u8 level)
+{
+    // Enable this to get colored ouptut
+    HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    // FATAL,ERROR,WARN,INFO,DEBUG,TRACE
+    static u8 levels[6] = {64, 4, 6, 2, 1, 8};
+
+    SetConsoleTextAttribute(consoleHandle, levels[level]);
+    OutputDebugStringA(message);
+
+    u64     length = strlen(message);
+    LPDWORD numberWritten = 0;
+    WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), message, (DWORD)length, numberWritten, 0);
+    SetConsoleTextAttribute(consoleHandle, 7);
 }
 
 #endif
