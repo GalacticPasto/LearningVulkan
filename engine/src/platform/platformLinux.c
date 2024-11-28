@@ -11,7 +11,7 @@
 typedef struct internalstate
 {
     xcb_connection_t *connection;
-    xcb_screen_t     *screen;
+    xcb_screen_t *    screen;
     xcb_drawable_t    window;
     xcb_atom_t        wmProtocols;
     xcb_atom_t        wmDeleteWin;
@@ -48,7 +48,7 @@ b8 platformStartup(platformState *platformState)
     state->window = xcb_generate_id(state->connection);
 
     // Register event types.
-    // XCB_CW_BACK_PIXEL = filling then window bg with a single colour
+    // XCB_CW_BACK_PIXEL = filling then window bg with a single level
     // XCB_CW_EVENT_MASK is required.
     u32 eventMask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
 
@@ -57,7 +57,7 @@ b8 platformStartup(platformState *platformState)
                       XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_POINTER_MOTION |
                       XCB_EVENT_MASK_STRUCTURE_NOTIFY;
 
-    // Values to be sent over XCB (bg colour, events)
+    // Values to be sent over XCB (bg level, events)
     u32 valueList[] = {state->screen->black_pixel, eventValues};
 
     // create window
@@ -113,8 +113,8 @@ void platformShutdown(platformState *platformState)
 
 b8 platformPumpMessages(platformState *platformState)
 {
-    internalState              *state = (internalState *)platformState->internalState;
-    xcb_generic_event_t        *event;
+    internalState *             state = (internalState *)platformState->internalState;
+    xcb_generic_event_t *       event;
     xcb_client_message_event_t *cm;
     b8                          quitFlagged = FALSE;
 
@@ -152,5 +152,19 @@ b8 platformPumpMessages(platformState *platformState)
         free(event);
     }
     return quitFlagged;
+}
+
+void platformConsoleWrite(const char *message, u8 level)
+{
+    const char *colourStrings[] = {"0;41", "1;31", "1;33", "1;32", "1;35", "1;36"};
+    printf("\033[%sm%s\033[0m", colourStrings[level], message);
+    // printf("%s", message);
+}
+
+void platformConsoleWriteError(const char *message, u8 level)
+{
+    const char *colourStrings[] = {"0;41", "1;31", "1;33", "1;32", "1;35", "1;36"};
+    printf("\033[%sm%s\033[0m", colourStrings[level], message);
+    // printf("%s", message);
 }
 #endif

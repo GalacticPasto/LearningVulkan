@@ -1,0 +1,119 @@
+* commit e05d0a78101f667bf511a1ef3caafabb2715bdd7 (HEAD -> main, origin/main, origin/HEAD)
+| Author: GalacticPast <adhikarybrizein2003@gmail.com>
+| Date:   Thu Nov 28 14:50:53 2024 -0500
+| 
+|     logging
+| 
+* commit 1f833bf008d37a90cf58d22cfddc2aa95d97267a
+| Author: GalacticPast <adhikarybrizein2003@gmail.com>
+| Date:   Thu Nov 28 14:10:10 2024 -0500
+| 
+|     windows platform layer
+| 
+* commit 7ee932b74ef608ad7f96116e5242ab3e387c9fa2
+| Author: galacticPast <adhikarybrizein2003@gmail.com>
+| Date:   Thu Nov 28 12:55:10 2024 -0500
+| 
+|     remove obj dir
+| 
+* commit 532925339f8f137c24594a0c7e724a73bcdce251
+| Author: galacticPast <adhikarybrizein2003@gmail.com>
+| Date:   Thu Nov 28 12:54:09 2024 -0500
+| 
+|     cant figure out makefiles for now :(
+| 
+* commit 57a87a268821efb232702433942f1d90de478193
+| Author: galacticPast <adhikarybrizein2003@gmail.com>
+| Date:   Thu Nov 28 12:53:07 2024 -0500
+| 
+|     cant figure out makefiles for now :(
+| 
+* commit 15ceda39b5900b83e6a646756f5244bfda774d6b
+| Author: GalacticPast <adhikarybrizein2003@gmail.com>
+| Date:   Wed Nov 27 21:58:10 2024 -0500
+| 
+|     update build method
+| 
+* commit fe86ad205cf154c6921862438c86c19eb0a15805
+| Author: GalacticPast <adhikarybrizein2003@gmail.com>
+| Date:   Wed Nov 27 20:11:30 2024 -0500
+| 
+|     linux platform layer
+| 
+* commit d866da167a3a7d2bd1f2b7844f79217bd980f631
+| Author: GalacticPast <adhikarybrizein2003@gmail.com>
+| Date:   Wed Nov 27 15:15:24 2024 -0500
+| 
+|     fresh start
+| 
+* commit 4af0eae9a377dfe704337defa6b47ca23b1ccbed
+| Author: GalacticPast <adhikarybrizein2003@gmail.com>
+| Date:   Fri Nov 15 17:22:21 2024 -0500
+| 
+|     dedicated vertex buffers
+| 
+* commit 46656a1bbc7d8c1d7c69853435880b32e887ee4a
+| Author: galacticPast <adhikarybrizein2003@gmail.com>
+| Date:   Fri Nov 15 00:05:28 2024 -0500
+| 
+|     finished 'Drawing a Triangle' part
+| 
+* commit ba3ec65571727ff01047be813d388c6125b8cdf6
+| Author: galacticPast <adhikarybrizein2003@gmail.com>
+| Date:   Thu Nov 14 23:41:30 2024 -0500
+| 
+|     refactor
+| 
+* commit 22cd1ad66a5c769714e0dde03f8f7f3c5cacd60a
+| Author: galacticPast <adhikarybrizein2003@gmail.com>
+| Date:   Wed Nov 13 20:52:42 2024 -0500
+| 
+|     first triangle
+| 
+* commit fe590fde80367e3863b908043e31d0648bc88647
+| Author: galacticPast <adhikarybrizein2003@gmail.com>
+| Date:   Tue Nov 12 20:30:09 2024 -0500
+| 
+|     finished framebuffers and commandbuffers
+| 
+* commit ff361a81387727238f77b0ebb3d6c79c2d5f09be
+| Author: GalacticPast <adhikarybrizein2003@gmail.com>
+| Date:   Tue Nov 12 20:00:16 2024 -0500
+| 
+|     finished graphics pipeline
+| 
+* commit 3675cf519072a9111554f9a1a01b11537b67017d
+| Author: GalacticPast <adhikarybrizein2003@gmail.com>
+| Date:   Tue Nov 12 16:43:16 2024 -0500
+| 
+|     graphics pipeline
+| 
+* commit 5f6237190a996c95505bea09aba7200fbb655a72
+| Author: galacticPast <adhikarybrizein2003@gmail.com>
+| Date:   Mon Nov 11 16:51:48 2024 -0500
+| 
+|     started graphics pipelining
+| 
+* commit af42beca3a60bc8665368209e095a28fd2617777
+| Author: galacticPast <adhikarybrizein2003@gmail.com>
+| Date:   Mon Nov 11 14:37:58 2024 -0500
+| 
+|     image views
+| 
+* commit 7d0bd67d5a6f216e15d1864d2d3bdccbed6f6f5d
+| Author: GalacticPast <adhikarybrizein2003@gmail.com>
+| Date:   Sun Nov 10 20:06:55 2024 -0500
+| 
+|     swap chain
+| 
+* commit 77b4f134f74684105918a8d4d482239ba5bf0d5d
+| Author: galacticPasto <adhikarybrizein2003@gmail.com>
+| Date:   Fri Nov 8 18:22:06 2024 -0500
+| 
+|     changes
+| 
+* commit 6a11d7a70974458fb0b8e349b97af7fbd20cd0cf
+  Author: GalacticPast <adhikarybrizein2003@gmail.com>
+  Date:   Wed Nov 6 21:09:20 2024 -0500
+  
+      first commit
