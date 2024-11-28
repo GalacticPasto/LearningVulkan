@@ -1,5 +1,5 @@
-#include "defines.h"
-#include "platform/platform.h"
+#include <defines.h>
+#include <platform/platform.h>
 #include <stdio.h>
 
 int main()
