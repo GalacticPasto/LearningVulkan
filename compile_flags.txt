@@ -1,0 +1,6 @@
+-I
+engine/src
+-D
+_DEBUG
+-D
+DPLATFORM_LINUX_WAYLAND

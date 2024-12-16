@@ -2,7 +2,8 @@
 
 #include "defines.h"
 
-typedef enum memory_tag {
+typedef enum memory_tag
+{
     // For temporary use. Should be assigned one of the below or have a new tag created.
     MEMORY_TAG_UNKNOWN,
     MEMORY_TAG_ARRAY,
@@ -25,17 +26,17 @@ typedef enum memory_tag {
     MEMORY_TAG_MAX_TAGS
 } memory_tag;
 
-KAPI void initialize_memory();
-KAPI void shutdown_memory();
+DAPI void initialize_memory();
+DAPI void shutdown_memory();
 
-KAPI void* kallocate(u64 size, memory_tag tag);
+DAPI void *kallocate(u64 size, memory_tag tag);
 
-KAPI void kfree(void* block, u64 size, memory_tag tag);
+DAPI void kfree(void *block, u64 size, memory_tag tag);
 
-KAPI void* kzero_memory(void* block, u64 size);
+DAPI void *kzero_memory(void *block, u64 size);
 
-KAPI void* kcopy_memory(void* dest, const void* source, u64 size);
+DAPI void *kcopy_memory(void *dest, const void *source, u64 size);
 
-KAPI void* kset_memory(void* dest, i32 value, u64 size);
+DAPI void *kset_memory(void *dest, i32 value, u64 size);
 
-KAPI char* get_memory_usage_str();
+DAPI char *get_memory_usage_str();

@@ -2,7 +2,8 @@
 
 #include "defines.h"
 
-typedef enum buttons {
+typedef enum buttons
+{
     BUTTON_LEFT,
     BUTTON_RIGHT,
     BUTTON_MIDDLE,
@@ -11,7 +12,8 @@ typedef enum buttons {
 
 #define DEFINE_KEY(name, code) KEY_##name = code
 
-typedef enum keys {
+typedef enum keys
+{
     DEFINE_KEY(BACKSPACE, 0x08),
     DEFINE_KEY(ENTER, 0x0D),
     DEFINE_KEY(TAB, 0x09),
@@ -147,20 +149,20 @@ void input_shutdown();
 void input_update(f64 delta_time);
 
 // keyboard input
-KAPI b8 input_is_key_down(keys key);
-KAPI b8 input_is_key_up(keys key);
-KAPI b8 input_was_key_down(keys key);
-KAPI b8 input_was_key_up(keys key);
+DAPI b8 input_is_key_down(keys key);
+DAPI b8 input_is_key_up(keys key);
+DAPI b8 input_was_key_down(keys key);
+DAPI b8 input_was_key_up(keys key);
 
 void input_process_key(keys key, b8 pressed);
 
 // mouse input
-KAPI b8 input_is_button_down(buttons button);
-KAPI b8 input_is_button_up(buttons button);
-KAPI b8 input_was_button_down(buttons button);
-KAPI b8 input_was_button_up(buttons button);
-KAPI void input_get_mouse_position(i32* x, i32* y);
-KAPI void input_get_previous_mouse_position(i32* x, i32* y);
+DAPI b8   input_is_button_down(buttons button);
+DAPI b8   input_is_button_up(buttons button);
+DAPI b8   input_was_button_down(buttons button);
+DAPI b8   input_was_button_up(buttons button);
+DAPI void input_get_mouse_position(i32 *x, i32 *y);
+DAPI void input_get_previous_mouse_position(i32 *x, i32 *y);
 
 void input_process_button(buttons button, b8 pressed);
 void input_process_mouse_move(i16 x, i16 y);
