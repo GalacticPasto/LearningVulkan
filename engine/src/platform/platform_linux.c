@@ -528,8 +528,33 @@ keys translate_keycode(u32 x_keycode)
 
 typedef struct internal_state
 {
-    struct wl_display *display;
+    struct wl_display    *display;
+    struct wl_compositor *compositor;
+    struct wl_surface    *surface;
 } internal_state;
+
+static void registry_handle_global(void *data, struct wl_registry *registry, uint32_t name, const char *interface,
+                                   uint32_t version)
+{
+    DINFO("interface: '%s', version: %d, name: %d", interface, version, name);
+
+    internal_state *state = (internal_state *)data;
+
+    if (strcmp(interface, wl_compositor_interface.name) == 0)
+    {
+        state->compositor = wl_registry_bind(registry, name, &wl_compositor_interface, 4);
+    }
+}
+
+static void registry_handle_global_remove(void *data, struct wl_registry *registry, uint32_t name)
+{
+    // This space deliberately left blank
+}
+
+static const struct wl_registry_listener registry_listener = {
+    .global = registry_handle_global,
+    .global_remove = registry_handle_global_remove,
+};
 
 b8 platform_startup(platform_state *plat_state, const char *application_name, i32 x, i32 y, i32 width, i32 height)
 {
@@ -537,8 +562,30 @@ b8 platform_startup(platform_state *plat_state, const char *application_name, i3
     internal_state *state = (internal_state *)plat_state->internal_state;
 
     state->display = wl_display_connect(NULL);
-
     CHECK_WL_RESULT(state->display);
+    DINFO("succefully connected to wl display");
+
+    struct wl_registry *registry = wl_display_get_registry(state->display);
+    CHECK_WL_RESULT(registry);
+    DINFO("succefully registered a wl reigster");
+
+    wl_registry_add_listener(registry, &registry_listener, state);
+    wl_display_roundtrip(state->display);
+
+    state->surface = wl_compositor_create_surface(state->compositor);
+    CHECK_WL_RESULT(state->surface);
+    DINFO("succefully connected a wl surface");
+
+    return true;
+}
+
+void platform_shutdown(platform_state *plat_state)
+{
+}
+
+b8 platform_pump_messages(platform_state *plat_state)
+{
+    internal_state *state = (internal_state *)plat_state->internal_state;
 
     return true;
 }
