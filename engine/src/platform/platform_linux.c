@@ -38,7 +38,7 @@ typedef struct internal_state
 } internal_state;
 
 // Key translation
-keys translate_keycode(u32 x_keycode);
+keys translate_keycode(u32 wl_keycode);
 
 b8 platform_startup(platform_state *plat_state, const char *application_name, i32 x, i32 y, i32 width, i32 height)
 {
@@ -245,9 +245,9 @@ b8 platform_pump_messages(platform_state *plat_state)
 }
 
 // Key translation
-keys translate_keycode(u32 x_keycode)
+keys translate_keycode(u32 wl_keycode)
 {
-    switch (x_keycode)
+    switch (wl_keycode)
     {
     case XK_BackSpace:
         return KEY_BACKSPACE;
@@ -606,6 +606,8 @@ typedef struct internal_state
     b8 is_running;
 } internal_state;
 
+u32 translate_keycode(u32 key);
+
 static void wl_buffer_release(void *data, struct wl_buffer *wl_buffer)
 {
     /* Sent by the compositor when it's no longer using this buffer */
@@ -673,14 +675,17 @@ static void wl_keyboard_key(void *data, struct wl_keyboard *wl_keyboard, u32 ser
 {
     struct internal_state *internal_state = data;
 
-    DDEBUG("%d key is being %d", key, state);
+    // 1 for being pressed 0 for unpress
+    i32 translated_key = translate_keycode(key);
 
-    if (key == 1)
+    // hack TODO: maybe get the file descriptor from the wayland server in order to avoid this
+    if (translated_key == KEY_ESCAPE)
     {
-        event_context context = {};
-        event_fire(EVENT_CODE_APPLICATION_QUIT, 0, context);
         internal_state->is_running = false;
     }
+    //
+
+    input_process_key(translated_key, state);
 }
 
 static void wl_keyboard_leave(void *data, struct wl_keyboard *wl_keyboard, u32 serial, struct wl_surface *surface)
@@ -743,7 +748,11 @@ static void xdg_toplevel_configure(void *data, struct xdg_toplevel *xdg_toplevel
 static void xdg_toplevel_close(void *data, struct xdg_toplevel *xdg_toplevel)
 {
 
+    DINFO("exit message recieved");
     internal_state *state = data;
+
+    event_context context = {};
+    event_fire(EVENT_CODE_APPLICATION_QUIT, 0, context);
     state->is_running = false;
 }
 struct xdg_toplevel_listener xdg_toplevel_listener = {.configure = xdg_toplevel_configure, .close = xdg_toplevel_close};
@@ -779,7 +788,9 @@ static const struct xdg_wm_base_listener xdg_wm_base_listener = {
 static void registry_global(void *data, struct wl_registry *wl_registry, u32 name, const char *interface, u32 version)
 {
     internal_state *state = data;
-    DINFO("interface: %s name %d version %d", interface, name, version);
+
+    // DINFO("interface: %s name %d version %d", interface, name, version);
+
     if (strcmp(interface, wl_shm_interface.name) == 0)
     {
         state->wl_shm = wl_registry_bind(wl_registry, name, &wl_shm_interface, 1);
@@ -850,7 +861,6 @@ void platform_shutdown(platform_state *plat_state)
     xdg_surface_destroy(state->xdg_surface);
     wl_surface_destroy(state->wl_surface);
     wl_display_disconnect(state->wl_display);
-    DDEBUG("Helloooo???");
 }
 
 b8 platform_pump_messages(platform_state *plat_state)
@@ -867,6 +877,332 @@ b8 platform_pump_messages(platform_state *plat_state)
     }
 
     return true;
+}
+
+u32 translate_keycode(u32 wl_keycode)
+{
+    switch (wl_keycode)
+    {
+    case 1: {
+        return KEY_ESCAPE;
+    }
+    case 2: {
+        return 0;
+        // return KEY_NUMPAD1;
+    }
+    case 3: {
+        return 0;
+        // return KEY_NUMPAD2;
+    }
+    case 4: {
+        return 0;
+        // return KEY_NUMPAD3;
+    }
+    case 5: {
+        return 0;
+        // return KEY_NUMPAD4;
+    }
+    case 6: {
+        return 0;
+        // return KEY_NUMPAD5;
+    }
+    case 7: {
+        return 0;
+        // return KEY_NUMPAD6;
+    }
+    case 8: {
+        return 0;
+        // return KEY_NUMPAD7;
+    }
+    case 9: {
+        return 0;
+        // return KEY_NUMPAD8;
+    }
+    case 10: {
+        return 0;
+        // return KEY_NUMPAD9;
+    }
+    case 11: {
+        return 0;
+        // return KEY_NUMPAD0;
+    }
+    case 12: {
+        return 0;
+    }
+    case 13: {
+        return 0;
+    }
+    case 14: {
+        return 0;
+    }
+    case 15: {
+        return 0;
+    }
+    case 16: {
+        return KEY_Q;
+    }
+    case 17: {
+        return KEY_W;
+    }
+    case 18: {
+        return KEY_E;
+    }
+    case 19: {
+        return KEY_R;
+    }
+    case 20: {
+        return KEY_T;
+    }
+    case 21: {
+        return KEY_Y;
+    }
+    case 22: {
+        return KEY_U;
+    }
+    case 23: {
+        return KEY_I;
+    }
+    case 24: {
+        return KEY_O;
+    }
+    case 25: {
+        return KEY_P;
+    }
+    case 26: {
+        return 0;
+    }
+    case 27: {
+        return 0;
+    }
+    case 28: {
+        return 0;
+    }
+    case 29: {
+        return 0;
+    }
+    case 30: {
+        return KEY_A;
+    }
+    case 31: {
+        return KEY_S;
+    }
+    case 32: {
+        return KEY_D;
+    }
+    case 33: {
+        return KEY_F;
+    }
+    case 34: {
+        return KEY_G;
+    }
+    case 35: {
+        return KEY_H;
+    }
+    case 36: {
+        return KEY_J;
+    }
+    case 37: {
+        return KEY_K;
+    }
+    case 38: {
+        return KEY_L;
+    }
+    case 39: {
+        return 0;
+    }
+    case 40: {
+        return 0;
+    }
+    case 41: {
+        return 0;
+    }
+    case 42: {
+        return 0;
+    }
+    case 43: {
+        return 0;
+    }
+    case 44: {
+        return KEY_Z;
+    }
+    case 45: {
+        return KEY_X;
+    }
+    case 46: {
+        return KEY_C;
+    }
+    case 47: {
+        return KEY_V;
+    }
+    case 48: {
+        return KEY_B;
+    }
+    case 49: {
+        return KEY_N;
+    }
+    case 50: {
+        return KEY_M;
+    }
+    case 51: {
+        return 0;
+    }
+    case 52: {
+        return 0;
+    }
+    case 53: {
+        return 0;
+    }
+    case 54: {
+        return 0;
+    }
+    case 55: {
+        return 0;
+    }
+    case 56: {
+        return 0;
+    }
+    case 57: {
+        return 0;
+    }
+    case 58: {
+        return 0;
+    }
+    case 59: {
+        return 0;
+    }
+    case 60: {
+        return 0;
+    }
+    case 61: {
+        return 0;
+    }
+    case 62: {
+        return 0;
+    }
+    case 63: {
+        return 0;
+    }
+    case 64: {
+        return 0;
+    }
+    case 65: {
+        return 0;
+    }
+    case 66: {
+        return 0;
+    }
+    case 67: {
+        return 0;
+    }
+    case 68: {
+        return 0;
+    }
+    case 69: {
+        return 0;
+    }
+    case 70: {
+        return 0;
+    }
+    case 71: {
+        return 0;
+    }
+    case 72: {
+        return 0;
+    }
+    case 73: {
+        return 0;
+    }
+    case 74: {
+        return 0;
+    }
+    case 75: {
+        return 0;
+    }
+    case 76: {
+        return 0;
+    }
+    case 77: {
+        return 0;
+    }
+    case 78: {
+        return 0;
+    }
+    case 79: {
+        return 0;
+    }
+    case 80: {
+        return 0;
+    }
+    case 81: {
+        return 0;
+    }
+    case 82: {
+        return 0;
+    }
+    case 83: {
+        return 0;
+    }
+    case 84: {
+        return 0;
+    }
+    case 85: {
+        return 0;
+    }
+    case 86: {
+        return 0;
+    }
+    case 87: {
+        return 0;
+    }
+    case 88: {
+        return 0;
+    }
+    case 89: {
+        return 0;
+    }
+    case 90: {
+        return 0;
+    }
+    case 91: {
+        return 0;
+    }
+    case 92: {
+        return 0;
+    }
+    case 93: {
+        return 0;
+    }
+    case 94: {
+        return 0;
+    }
+    case 95: {
+        return 0;
+    }
+    case 96: {
+        return 0;
+    }
+    case 97: {
+        return 0;
+    }
+    case 98: {
+        return 0;
+    }
+    case 99: {
+        return 0;
+    }
+    case 100: {
+        return 0;
+    }
+    case 101: {
+        return 0;
+    }
+    case 102: {
+        return 0;
+    }
+    defualt:
+        return 0;
+    }
+    return 0;
 }
 #endif
 

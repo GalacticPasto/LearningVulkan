@@ -156,7 +156,6 @@ b8 application_on_key(u16 code, void *sender, void *listener_inst, event_context
             // NOTE: Technically firing an event to itself, but there may be other listeners.
             event_context data = {};
             event_fire(EVENT_CODE_APPLICATION_QUIT, 0, data);
-
             // Block anything else from processing this.
             return true;
         }
