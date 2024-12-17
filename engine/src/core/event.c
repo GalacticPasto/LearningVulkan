@@ -2,6 +2,7 @@
 
 #include "containers/darray.h"
 #include "core/dmemory.h"
+#include "core/logger.h"
 
 typedef struct registered_event
 {
@@ -139,6 +140,7 @@ b8 event_fire(u16 code, void *sender, event_context context)
         if (e.callback(code, sender, e.listener, context))
         {
             // Message has been handled, do not send to other listeners.
+            DDEBUG("message %d handled", code);
             return true;
         }
     }

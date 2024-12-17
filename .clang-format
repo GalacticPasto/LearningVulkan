@@ -1,2 +1,4 @@
-BasedOnStyle : Microsoft AlignConsecutiveDeclarations : true AllowAllParametersOfDeclarationOnNextLine
-    : false IndentCaseLabels : true
+BasedOnStyle: Microsoft
+AlignConsecutiveDeclarations: true
+AllowAllParametersOfDeclarationOnNextLine: false
+IndentCaseLabels: true

@@ -6,7 +6,7 @@ ASSEMBLY := engine
 EXTENSION := .so
 COMPILER_FLAGS := -g -fdeclspec -fPIC
 INCLUDE_FLAGS := -Iengine/src -I$(VULKAN_SDK)/include
-LINKER_FLAGS := -g -shared -lvulkan -L$(VULKAN_SDK)/lib 
+LINKER_FLAGS := -g -shared -lvulkan -L$(VULKAN_SDK)/lib -lxkbcommon 
 DEFINES := -D_DEBUG -DDEXPORT 
 
 
@@ -18,7 +18,7 @@ DEFINES += -DDPLATFORM_LINUX_WAYLAND
 LINKER_FLAGS += -lwayland-client  
 else ifeq ($(strip $(PLATFORM)),x11)
 DEFINES += -DDPLATFORM_LINUX_X11
-LINKER_FLAGS += -lxcb -lX11 -lX11-xcb -lxkbcommon -L/usr/X11R6/lib
+LINKER_FLAGS += -lxcb -lX11 -lX11-xcb -L/usr/X11R6/lib
 endif 
 
 # Make does not offer a recursive wildcard function, so here's one:

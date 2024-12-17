@@ -265,7 +265,6 @@ keys translate_keycode(u32 x_keycode)
 
     case XK_Escape:
         return KEY_ESCAPE;
-
         // Not supported
         // case : return KEY_CONVERT;
         // case : return KEY_NONCONVERT;
@@ -526,6 +525,7 @@ keys translate_keycode(u32 x_keycode)
 //
 #include "wayland/xdg-shell-client-protocol.h"
 #include <wayland-client.h>
+#include <xkbcommon/xkbcommon.h>
 //
 // TODO: this is temporary migrate the shared memory to use vulkan instead of mannually allocating buffers
 #include <errno.h>
@@ -589,12 +589,21 @@ typedef struct internal_state
     struct wl_display    *wl_display;
     struct wl_registry   *wl_registry;
     struct wl_shm        *wl_shm;
+    struct wl_seat       *wl_seat;
     struct wl_compositor *wl_compositor;
     struct xdg_wm_base   *xdg_wm_base;
+
     /* Objects */
     struct wl_surface   *wl_surface;
     struct xdg_surface  *xdg_surface;
     struct xdg_toplevel *xdg_toplevel;
+
+    /* input */
+    struct wl_keyboard *wl_keyboard;
+    struct wl_mouse    *wl_mouse;
+
+    /* TODO remove this hack */
+    b8 is_running;
 } internal_state;
 
 static void wl_buffer_release(void *data, struct wl_buffer *wl_buffer)
@@ -619,7 +628,7 @@ static struct wl_buffer *draw_frame(struct internal_state *state)
         return NULL;
     }
 
-    uint32_t *data = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    u32 *data = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (data == MAP_FAILED)
     {
         close(fd);
@@ -645,7 +654,102 @@ static struct wl_buffer *draw_frame(struct internal_state *state)
     return buffer;
 }
 
-static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface, uint32_t serial)
+/* seat */
+
+// keyboard
+
+static void wl_keyboard_keymap(void *data, struct wl_keyboard *wl_keyboard, u32 format, i32 fd, u32 size)
+{
+    struct internal_state *state = data;
+}
+
+static void wl_keyboard_enter(void *data, struct wl_keyboard *wl_keyboard, u32 serial, struct wl_surface *surface,
+                              struct wl_array *keys)
+{
+    DDEBUG("keyboard enter focus");
+}
+
+static void wl_keyboard_key(void *data, struct wl_keyboard *wl_keyboard, u32 serial, u32 time, u32 key, u32 state)
+{
+    struct internal_state *internal_state = data;
+
+    DDEBUG("%d key is being %d", key, state);
+
+    if (key == 1)
+    {
+        event_context context = {};
+        event_fire(EVENT_CODE_APPLICATION_QUIT, 0, context);
+        internal_state->is_running = false;
+    }
+}
+
+static void wl_keyboard_leave(void *data, struct wl_keyboard *wl_keyboard, u32 serial, struct wl_surface *surface)
+{
+    DDEBUG("keyboard leave");
+}
+
+static void wl_keyboard_modifiers(void *data, struct wl_keyboard *wl_keyboard, u32 serial, u32 mods_depressed,
+                                  u32 mods_latched, u32 mods_locked, u32 group)
+{
+}
+
+static void wl_keyboard_repeat_info(void *data, struct wl_keyboard *wl_keyboard, i32 rate, i32 delay)
+{
+}
+
+static const struct wl_keyboard_listener wl_keyboard_listener = {
+    .keymap = wl_keyboard_keymap,
+    .enter = wl_keyboard_enter,
+    .leave = wl_keyboard_leave,
+    .key = wl_keyboard_key,
+    .modifiers = wl_keyboard_modifiers,
+    .repeat_info = wl_keyboard_repeat_info,
+};
+//
+
+static void wl_seat_capabilites(void *data, struct wl_seat *wl_seat, u32 capabilities)
+{
+    internal_state *state = data;
+
+    // TODO: mouse events
+    //
+
+    b8 have_keyboard = capabilities & WL_SEAT_CAPABILITY_KEYBOARD;
+
+    if (have_keyboard && state->wl_keyboard == NULL)
+    {
+        state->wl_keyboard = wl_seat_get_keyboard(state->wl_seat);
+        wl_keyboard_add_listener(state->wl_keyboard, &wl_keyboard_listener, state);
+    }
+    else if (!have_keyboard && state->wl_keyboard != NULL)
+    {
+        wl_keyboard_release(state->wl_keyboard);
+        state->wl_keyboard = NULL;
+    }
+}
+static void wl_seat_name(void *data, struct wl_seat *wl_seat, const char *name)
+{
+}
+
+struct wl_seat_listener wl_seat_listener = {.capabilities = wl_seat_capabilites, .name = wl_seat_name};
+
+// actual surface
+static void xdg_toplevel_configure(void *data, struct xdg_toplevel *xdg_toplevel, i32 width, i32 height,
+                                   struct wl_array *states)
+{
+    internal_state *state = data;
+}
+
+static void xdg_toplevel_close(void *data, struct xdg_toplevel *xdg_toplevel)
+{
+
+    internal_state *state = data;
+    state->is_running = false;
+}
+struct xdg_toplevel_listener xdg_toplevel_listener = {.configure = xdg_toplevel_configure, .close = xdg_toplevel_close};
+//
+
+static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface, u32 serial)
 {
     struct internal_state *state = data;
     xdg_surface_ack_configure(xdg_surface, serial);
@@ -661,7 +765,8 @@ static const struct xdg_surface_listener xdg_surface_listener = {
     .configure = xdg_surface_configure,
 };
 
-static void xdg_wm_base_ping(void *data, struct xdg_wm_base *xdg_wm_base, uint32_t serial)
+// shell
+static void xdg_wm_base_ping(void *data, struct xdg_wm_base *xdg_wm_base, u32 serial)
 {
     xdg_wm_base_pong(xdg_wm_base, serial);
 }
@@ -669,11 +774,12 @@ static void xdg_wm_base_ping(void *data, struct xdg_wm_base *xdg_wm_base, uint32
 static const struct xdg_wm_base_listener xdg_wm_base_listener = {
     .ping = xdg_wm_base_ping,
 };
+//
 
-static void registry_global(void *data, struct wl_registry *wl_registry, uint32_t name, const char *interface,
-                            uint32_t version)
+static void registry_global(void *data, struct wl_registry *wl_registry, u32 name, const char *interface, u32 version)
 {
     internal_state *state = data;
+    DINFO("interface: %s name %d version %d", interface, name, version);
     if (strcmp(interface, wl_shm_interface.name) == 0)
     {
         state->wl_shm = wl_registry_bind(wl_registry, name, &wl_shm_interface, 1);
@@ -687,9 +793,14 @@ static void registry_global(void *data, struct wl_registry *wl_registry, uint32_
         state->xdg_wm_base = wl_registry_bind(wl_registry, name, &xdg_wm_base_interface, 1);
         xdg_wm_base_add_listener(state->xdg_wm_base, &xdg_wm_base_listener, state);
     }
+    else if (strcmp(interface, wl_seat_interface.name) == 0)
+    {
+        state->wl_seat = wl_registry_bind(wl_registry, name, &wl_seat_interface, 1);
+        wl_seat_add_listener(state->wl_seat, &wl_seat_listener, state);
+    }
 }
 
-static void registry_global_remove(void *data, struct wl_registry *wl_registry, uint32_t name)
+static void registry_global_remove(void *data, struct wl_registry *wl_registry, u32 name)
 {
     /* This space deliberately left blank */
 }
@@ -703,6 +814,7 @@ b8 platform_startup(platform_state *plat_state, const char *application_name, i3
 {
     plat_state->internal_state = malloc(sizeof(internal_state));
     internal_state *state = (internal_state *)plat_state->internal_state;
+    state->is_running = true;
 
     state->wl_display = wl_display_connect(NULL);
     CHECK_WL_RESULT(state->wl_display);
@@ -722,14 +834,23 @@ b8 platform_startup(platform_state *plat_state, const char *application_name, i3
 
     state->xdg_toplevel = xdg_surface_get_toplevel(state->xdg_surface);
     CHECK_WL_RESULT(state->xdg_toplevel);
+    xdg_toplevel_add_listener(state->xdg_toplevel, &xdg_toplevel_listener, state);
     xdg_toplevel_set_title(state->xdg_toplevel, application_name);
 
     wl_surface_commit(state->wl_surface);
 
     return true;
 }
+
 void platform_shutdown(platform_state *plat_state)
 {
+    internal_state *state = (internal_state *)plat_state->internal_state;
+
+    xdg_toplevel_destroy(state->xdg_toplevel);
+    xdg_surface_destroy(state->xdg_surface);
+    wl_surface_destroy(state->wl_surface);
+    wl_display_disconnect(state->wl_display);
+    DDEBUG("Helloooo???");
 }
 
 b8 platform_pump_messages(platform_state *plat_state)
@@ -739,6 +860,10 @@ b8 platform_pump_messages(platform_state *plat_state)
     while (wl_display_dispatch(state->wl_display))
     {
         // TODO: dispatch events
+        if (!state->is_running)
+        {
+            break;
+        }
     }
 
     return true;
