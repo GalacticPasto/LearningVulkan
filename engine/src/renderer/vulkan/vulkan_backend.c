@@ -7,6 +7,11 @@
 
 static vulkan_context context = {};
 
+VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
+                                                 VkDebugUtilsMessageTypeFlagsEXT             messageTypes,
+                                                 const VkDebugUtilsMessengerCallbackDataEXT *callbackData,
+                                                 void                                       *userData);
+
 b8 vulkan_initialize(struct renderer_backend *backend, const char *application_name, struct platform_state *platSate)
 {
 
@@ -41,7 +46,7 @@ b8 vulkan_initialize(struct renderer_backend *backend, const char *application_n
     // validation layers
     u32 layer_count = 0;
     VK_CHECK(vkEnumerateInstanceLayerProperties(&layer_count, 0));
-    DINFO("Available layer counts %d", layer_count);
+    DDEBUG("Available layer counts %d", layer_count);
 
     VkLayerProperties *vk_layer_properties = (VkLayerProperties *)darray_reserve(VkLayerProperties, layer_count);
     VK_CHECK(vkEnumerateInstanceLayerProperties(&layer_count, vk_layer_properties));
@@ -55,7 +60,7 @@ b8 vulkan_initialize(struct renderer_backend *backend, const char *application_n
             if (string_compare(required_layers[i], vk_layer_properties[j].layerName))
             {
                 found = true;
-                DINFO("Found %s", required_layers[i]);
+                DDEBUG("Found %s", required_layers[i]);
                 break;
             }
         }
@@ -66,7 +71,7 @@ b8 vulkan_initialize(struct renderer_backend *backend, const char *application_n
         }
     }
 
-    DINFO("All required validation layers are found");
+    DDEBUG("All required validation layers are found");
     darray_destroy(vk_layer_properties);
 #endif
 
@@ -96,6 +101,33 @@ b8 vulkan_initialize(struct renderer_backend *backend, const char *application_n
     VK_CHECK(vkCreateInstance(&instance_info, 0, &context.vk_instance));
     DINFO("Succesfully created vulkan instance");
 
+#ifdef _DEBUG
+
+    DDEBUG("Creating Vulkan debugger");
+
+    u32 logSeverity =
+        VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+        VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT; //|
+                                                      //    VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
+
+    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo = {VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT};
+
+    debugCreateInfo.messageSeverity = logSeverity;
+    debugCreateInfo.messageType     = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                                  VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT |
+                                  VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
+    debugCreateInfo.pfnUserCallback = vk_debug_callback;
+
+    PFN_vkCreateDebugUtilsMessengerEXT func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
+        context.vk_instance, "vkCreateDebugUtilsMessengerEXT");
+
+    DASSERT_MSG(func, "Failed to create debug messenger!");
+
+    VK_CHECK(func(context.vk_instance, &debugCreateInfo, 0, &context.debug_messenger));
+
+    DDEBUG("Vulkan debugger created.");
+#endif
+
     return true;
 }
 
@@ -116,4 +148,28 @@ b8 vulkan_begin_frame(struct renderer_backend *backend, f32 delta_time)
 b8 vulkan_end_frame(struct renderer_backend *backend, f32 delta_time)
 {
     return false;
+}
+
+VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
+                                                 VkDebugUtilsMessageTypeFlagsEXT             messageTypes,
+                                                 const VkDebugUtilsMessengerCallbackDataEXT *callbackData,
+                                                 void                                       *userData)
+{
+    switch (messageSeverity)
+    {
+        default:
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+            DERROR(callbackData->pMessage);
+            break;
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+            DWARN(callbackData->pMessage);
+            break;
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+            DINFO(callbackData->pMessage);
+            break;
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+            DTRACE(callbackData->pMessage);
+            break;
+    }
+    return VK_FALSE;
 }

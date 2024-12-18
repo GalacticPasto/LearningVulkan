@@ -14,4 +14,8 @@ typedef struct vulkan_context
     VkInstance            vk_instance;
     VkInstanceCreateInfo *instance_info;
 
+#ifdef _DEBUG
+    VkDebugUtilsMessengerEXT debug_messenger;
+#endif
+
 } vulkan_context;
