@@ -8,6 +8,8 @@
 #include "core/input.h"
 #include "platform/platform.h"
 
+#include "renderer/renderer_frontend.h"
+
 typedef struct application_state
 {
     game          *game_inst;
@@ -28,6 +30,7 @@ b8 application_on_key(u16 code, void *sender, void *listener_inst, event_context
 
 b8 application_create(game *game_inst)
 {
+
     if (initialized)
     {
         DERROR("application_create called more than once.");
@@ -48,7 +51,7 @@ b8 application_create(game *game_inst)
     DDEBUG("A test message: %f", 3.14f);
     DTRACE("A test message: %f", 3.14f);
 
-    app_state.is_running = true;
+    app_state.is_running   = true;
     app_state.is_suspended = false;
 
     if (!event_initialize())
@@ -65,6 +68,13 @@ b8 application_create(game *game_inst)
                           game_inst->app_config.start_pos_y, game_inst->app_config.start_width,
                           game_inst->app_config.start_height))
     {
+        DFATAL("platform startup failed");
+        return false;
+    }
+
+    if (!renderer_initialize(game_inst->app_config.name, &app_state.platform))
+    {
+        DFATAL("renderer initialze failed");
         return false;
     }
 
@@ -72,6 +82,12 @@ b8 application_create(game *game_inst)
     if (!app_state.game_inst->initialize(app_state.game_inst))
     {
         DFATAL("Game failed to initialize.");
+        return false;
+    }
+
+    if (!app_state.game_inst->render(app_state.game_inst, 0))
+    {
+        DFATAL("game render failed to initialize.");
         return false;
     }
 
@@ -92,6 +108,7 @@ b8 application_run()
         {
             app_state.is_running = false;
         }
+        // TODO: nochekin
 
         if (!app_state.is_suspended)
         {
@@ -136,11 +153,11 @@ b8 application_on_event(u16 code, void *sender, void *listener_inst, event_conte
 {
     switch (code)
     {
-    case EVENT_CODE_APPLICATION_QUIT: {
-        DINFO("EVENT_CODE_APPLICATION_QUIT recieved, shutting down.\n");
-        app_state.is_running = false;
-        return true;
-    }
+        case EVENT_CODE_APPLICATION_QUIT: {
+            DINFO("EVENT_CODE_APPLICATION_QUIT recieved, shutting down.\n");
+            app_state.is_running = false;
+            return true;
+        }
     }
 
     return false;

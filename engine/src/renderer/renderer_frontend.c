@@ -1,14 +1,14 @@
+#include "renderer_frontend.h"
 #include "core/dmemory.h"
 #include "core/logger.h"
 #include "renderer_backend.h"
-#include "renderer_frontend.h"
 
 static renderer_backend *backend = 0;
 
 b8 renderer_initialize(const char *application_name, struct platform_state *plat_state)
 {
 
-    backend = dallocate(sizeof(renderer_backend), MEMORY_TAG_RENDERER);
+    backend               = dallocate(sizeof(renderer_backend), MEMORY_TAG_RENDERER);
     backend->frame_number = 0;
 
     b8 result = renderer_backend_create(plat_state, backend);
