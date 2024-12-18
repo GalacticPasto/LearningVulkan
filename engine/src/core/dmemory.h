@@ -29,14 +29,14 @@ typedef enum memory_tag
 DAPI void initialize_memory();
 DAPI void shutdown_memory();
 
-DAPI void *kallocate(u64 size, memory_tag tag);
+DAPI void *dallocate(u64 size, memory_tag tag);
 
-DAPI void kfree(void *block, u64 size, memory_tag tag);
+DAPI void dfree(void *block, u64 size, memory_tag tag);
 
-DAPI void *kzero_memory(void *block, u64 size);
+DAPI void *dzero_memory(void *block, u64 size);
 
-DAPI void *kcopy_memory(void *dest, const void *source, u64 size);
+DAPI void *dcopy_memory(void *dest, const void *source, u64 size);
 
-DAPI void *kset_memory(void *dest, i32 value, u64 size);
+DAPI void *dset_memory(void *dest, i32 value, u64 size);
 
 DAPI char *get_memory_usage_str();

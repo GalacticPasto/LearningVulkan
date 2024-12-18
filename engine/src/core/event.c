@@ -37,7 +37,7 @@ b8 event_initialize()
         return false;
     }
     is_initialized = false;
-    kzero_memory(&state, sizeof(state));
+    dzero_memory(&state, sizeof(state));
 
     is_initialized = true;
 

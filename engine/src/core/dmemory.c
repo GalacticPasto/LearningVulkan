@@ -30,11 +30,11 @@ void shutdown_memory()
 {
 }
 
-void *kallocate(u64 size, memory_tag tag)
+void *dallocate(u64 size, memory_tag tag)
 {
     if (tag == MEMORY_TAG_UNKNOWN)
     {
-        DWARN("kallocate called using MEMORY_TAG_UNKNOWN. Re-class this allocation.");
+        DWARN("dallocate called using MEMORY_TAG_UNKNOWN. Re-class this allocation.");
     }
 
     stats.total_allocated += size;
@@ -46,11 +46,11 @@ void *kallocate(u64 size, memory_tag tag)
     return block;
 }
 
-void kfree(void *block, u64 size, memory_tag tag)
+void dfree(void *block, u64 size, memory_tag tag)
 {
     if (tag == MEMORY_TAG_UNKNOWN)
     {
-        DWARN("kfree called using MEMORY_TAG_UNKNOWN. Re-class this allocation.");
+        DWARN("dfree called using MEMORY_TAG_UNKNOWN. Re-class this allocation.");
     }
 
     stats.total_allocated -= size;
@@ -60,17 +60,17 @@ void kfree(void *block, u64 size, memory_tag tag)
     platform_free(block, false);
 }
 
-void *kzero_memory(void *block, u64 size)
+void *dzero_memory(void *block, u64 size)
 {
     return platform_zero_memory(block, size);
 }
 
-void *kcopy_memory(void *dest, const void *source, u64 size)
+void *dcopy_memory(void *dest, const void *source, u64 size)
 {
     return platform_copy_memory(dest, source, size);
 }
 
-void *kset_memory(void *dest, i32 value, u64 size)
+void *dset_memory(void *dest, i32 value, u64 size)
 {
     return platform_set_memory(dest, value, size);
 }

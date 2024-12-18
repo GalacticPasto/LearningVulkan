@@ -29,7 +29,7 @@ static input_state state = {};
 
 void input_initialize()
 {
-    kzero_memory(&state, sizeof(input_state));
+    dzero_memory(&state, sizeof(input_state));
     initialized = true;
     DINFO("Input subsystem initialized.");
 }
@@ -48,8 +48,8 @@ void input_update(f64 delta_time)
     }
 
     // Copy current states to previous states.
-    kcopy_memory(&state.keyboard_previous, &state.keyboard_current, sizeof(keyboard_state));
-    kcopy_memory(&state.mouse_previous, &state.mouse_current, sizeof(mouse_state));
+    dcopy_memory(&state.keyboard_previous, &state.keyboard_current, sizeof(keyboard_state));
+    dcopy_memory(&state.mouse_previous, &state.mouse_current, sizeof(mouse_state));
 }
 
 void input_process_key(keys key, b8 pressed)
