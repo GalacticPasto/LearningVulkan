@@ -1,3 +1,4 @@
+#pragma once
 #include "defines.h"
 
 typedef struct render_packet

@@ -1,6 +1,12 @@
 #pragma once
 
+#include "core/asserts.h"
 #include "renderer/renderer_backend.h"
+
+#define VK_CHECK(exp)                                                                                                  \
+    {                                                                                                                  \
+        DASSERT(exp == VK_SUCCESS);                                                                                    \
+    }
 
 b8 vulkan_initialize(struct renderer_backend *backend, const char *application_name, struct platform_state *platSate);
 
