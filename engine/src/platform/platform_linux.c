@@ -1,5 +1,7 @@
 #include "containers/darray.h"
 #include "platform.h"
+#include "renderer/vulkan/vulkan_platform.h"
+#include "renderer/vulkan/vulkan_types.h"
 
 // Linux platform layer.
 #if DPLATFORM_LINUX
@@ -21,6 +23,9 @@
 #include "core/logger.h"
 
 #if DPLATFORM_LINUX_X11
+
+#define VK_USE_PLATFORM_XCB_KHR
+#include <vulkan/vulkan.h>
 
 #include <X11/XKBlib.h>   // sudo apt-get install libx11-dev
 #include <X11/Xlib-xcb.h> // sudo apt-get install libxkbcommon-x11-dev
@@ -243,6 +248,27 @@ b8 platform_pump_messages(platform_state *plat_state)
         free(event);
     }
     return !quit_flagged;
+}
+
+b8 platform_create_vk_surface(platform_state *plat_state, struct vulkan_context *context)
+{
+
+    DTRACE("Creating X11 surface...");
+
+    internal_state *state = (internal_state *)plat_state->internal_state;
+
+    VkXcbSurfaceCreateInfoKHR surface_info = {};
+    surface_info.sType                     = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
+    surface_info.pNext                     = 0;
+    surface_info.flags                     = 0;
+    surface_info.display                   = state->display;
+    surface_info.surface                   = state->window;
+
+    VK_CHECK(vkCreateXcbSurfaceKHR(context->vk_instance, &surface_info, 0, &context->vk_surface));
+
+    DINFO("Created x11 surface");
+
+    return true;
 }
 
 // Key translation
@@ -523,8 +549,6 @@ void platform_get_specific_surface_extensions(const char ***array)
 
 #if DPLATFORM_LINUX_WAYLAND
 
-#define VK_USE_PLATFORM_WAYLAND_KHR
-
 #define CHECK_WL_RESULT(expr)                                                                                          \
     {                                                                                                                  \
         DASSERT(expr != 0);                                                                                            \
@@ -533,12 +557,13 @@ void platform_get_specific_surface_extensions(const char ***array)
 #include "wayland/xdg-shell-client-protocol.h"
 #include <wayland-client.h>
 #include <xkbcommon/xkbcommon.h>
-//
+
 // TODO: this is temporary migrate the shared memory to use vulkan instead of mannually allocating buffers
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>
+//
 
 /* Shared memory support code */
 static void randname(char *buf)
@@ -663,7 +688,7 @@ static struct wl_buffer *draw_frame(struct internal_state *state)
     return buffer;
 }
 
-/* seat */
+// seat
 
 // keyboard
 
@@ -877,6 +902,30 @@ b8 platform_pump_messages(platform_state *plat_state)
     i32 result = wl_display_dispatch(state->wl_display);
 
     return result == 0 ? false : true;
+}
+
+b8 platform_create_vk_surface(platform_state *plat_state, struct vulkan_context *context)
+{
+    internal_state *state = (internal_state *)plat_state->internal_state;
+
+    DTRACE("Creating wayland surface...");
+
+    VkWaylandSurfaceCreateInfoKHR surface_info = {};
+    surface_info.sType                         = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
+    surface_info.pNext                         = 0;
+    surface_info.flags                         = 0;
+    surface_info.display                       = state->wl_display;
+    surface_info.surface                       = state->wl_surface;
+
+    VK_CHECK(vkCreateWaylandSurfaceKHR(context->vk_instance, &surface_info, 0, &context->vk_surface));
+
+    DINFO("Created wayland surface");
+    return true;
+}
+
+void platform_get_specific_surface_extensions(const char ***array)
+{
+    darray_push(*array, &"VK_KHR_wayland_surface");
 }
 
 u32 translate_keycode(u32 wl_keycode)
@@ -1205,10 +1254,6 @@ u32 translate_keycode(u32 wl_keycode)
     return 0;
 }
 
-void platform_get_specific_surface_extensions(const char ***array)
-{
-    darray_push(*array, &"VK_KHR_wayland_surface");
-}
 #endif
 
 void *platform_allocate(u64 size, b8 aligned)

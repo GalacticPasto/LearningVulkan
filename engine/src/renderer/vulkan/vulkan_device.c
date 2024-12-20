@@ -36,7 +36,7 @@ b8 vk_create_device(vulkan_context *context)
     u32 no_of_queues = 1;
 
     b8 transfer_queue_shares_graphics_queue =
-        context->device.graphics_queue_index == context->device.transfer_queue_index;
+        context->vk_device.graphics_queue_index == context->vk_device.transfer_queue_index;
 
     if (!transfer_queue_shares_graphics_queue)
     {
@@ -45,11 +45,11 @@ b8 vk_create_device(vulkan_context *context)
 
     u32 queue_indicies[no_of_queues] = {};
     u32 index                        = 0;
-    queue_indicies[index++]          = context->device.graphics_queue_index;
+    queue_indicies[index++]          = context->vk_device.graphics_queue_index;
 
     if (!transfer_queue_shares_graphics_queue)
     {
-        queue_indicies[index++] = context->device.transfer_queue_index;
+        queue_indicies[index++] = context->vk_device.transfer_queue_index;
     }
 
     VkDeviceQueueCreateInfo queue_create_infos[no_of_queues];
@@ -76,12 +76,14 @@ b8 vk_create_device(vulkan_context *context)
     device_create_info.ppEnabledExtensionNames = 0;
     device_create_info.pEnabledFeatures        = &device_features_to_be_enabled;
 
-    VK_CHECK(vkCreateDevice(context->device.physical, &device_create_info, NULL, &context->device.logical));
+    VK_CHECK(vkCreateDevice(context->vk_device.physical, &device_create_info, NULL, &context->vk_device.logical));
     DINFO("Created vulkan logical device");
 
     // get the queues
-    vkGetDeviceQueue(context->device.logical, context->device.graphics_queue_index, 0, &context->device.graphics_queue);
-    vkGetDeviceQueue(context->device.logical, context->device.transfer_queue_index, 0, &context->device.transfer_queue);
+    vkGetDeviceQueue(context->vk_device.logical, context->vk_device.graphics_queue_index, 0,
+                     &context->vk_device.graphics_queue);
+    vkGetDeviceQueue(context->vk_device.logical, context->vk_device.transfer_queue_index, 0,
+                     &context->vk_device.transfer_queue);
 
     return true;
 }
@@ -175,14 +177,14 @@ b8 select_physical_device(vulkan_context *context)
                     DINFO("Shared System memory: %.2f GiB", memorySizeGib);
                 }
             }
-            context->device.physical   = physical_devices[i];
-            context->device.properties = device_properties;
-            context->device.features   = device_features;
-            context->device.memory     = device_memory;
+            context->vk_device.physical   = physical_devices[i];
+            context->vk_device.properties = device_properties;
+            context->vk_device.features   = device_features;
+            context->vk_device.memory     = device_memory;
 
-            context->device.compute_queue_index  = queue_info.compute_family_index;
-            context->device.graphics_queue_index = queue_info.graphics_family_index;
-            context->device.transfer_queue_index = queue_info.transfer_family_index;
+            context->vk_device.compute_queue_index  = queue_info.compute_family_index;
+            context->vk_device.graphics_queue_index = queue_info.graphics_family_index;
+            context->vk_device.transfer_queue_index = queue_info.transfer_family_index;
 
             return true;
         }
@@ -325,6 +327,6 @@ static void populate_buf(char *buf, VkQueueFlags queueFlags)
 
 b8 vk_destroy_device(vulkan_context *context)
 {
-    vkDestroyDevice(context->device.logical, 0);
+    vkDestroyDevice(context->vk_device.logical, 0);
     return true;
 }

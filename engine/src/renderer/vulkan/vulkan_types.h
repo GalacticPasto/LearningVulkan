@@ -2,6 +2,13 @@
 
 #include "core/asserts.h"
 #include "defines.h"
+
+#ifdef DPLATFORM_LINUX_WAYLAND
+#define VK_USE_PLATFORM_WAYLAND_KHR
+#elif
+#define VK_USE_PLATFORM_XCB_KHR
+#endif
+
 #include <vulkan/vulkan.h>
 
 #define VK_CHECK(exp)                                                                                                  \
@@ -40,6 +47,8 @@ typedef struct vulkan_context
     VkDebugUtilsMessengerEXT debug_messenger;
 #endif
     // physical device and logical device
-    vulkan_device device;
+    vulkan_device vk_device;
+    // vulkan surface
+    VkSurfaceKHR vk_surface;
 
 } vulkan_context;

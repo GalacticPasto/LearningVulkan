@@ -83,7 +83,6 @@ b8 vulkan_initialize(renderer_backend *backend, const char *application_name, st
     instance_info.ppEnabledLayerNames = required_layers;
 
     // Extensions
-
     const char **required_extensions = darray_create(const char *);
     darray_push(required_extensions, &VK_KHR_SURFACE_EXTENSION_NAME); // Generic surface extension
     platform_get_specific_surface_extensions(&required_extensions);
@@ -132,16 +131,17 @@ b8 vulkan_initialize(renderer_backend *backend, const char *application_name, st
     DDEBUG("Vulkan debugger created.");
 #endif
 
-    // pick physical device
+    // get vulkan platform specific surface
+    platform_create_vk_surface(plat_state, &context);
 
+    // create physical device
     if (!vk_create_device(&context))
     {
-        DFATAL("VULKAN logical device creation failed");
+        DFATAL("Vulkan device creation failed");
         return false;
     }
 
     DINFO("VULKAN initialized");
-
     return true;
 }
 
@@ -151,8 +151,6 @@ static void pick_physical_device()
 
 void vulkan_shutdown(struct renderer_backend *backend)
 {
-    DDEBUG("renderer shutdown msg recieved");
-
     DDEBUG("Destroying vulkan device...");
     DASSERT(vk_destroy_device(&context));
 
@@ -163,6 +161,9 @@ void vulkan_shutdown(struct renderer_backend *backend)
             context.vk_instance, "vkDestroyDebugUtilsMessengerEXT");
         func(context.vk_instance, context.debug_messenger, 0);
     }
+
+    DDEBUG("Destroying vulkan surface...");
+    vkDestroySurfaceKHR(context.vk_instance, context.vk_surface, 0);
 
     DDEBUG("Destroying vulkan instance...");
     vkDestroyInstance(context.vk_instance, 0);
