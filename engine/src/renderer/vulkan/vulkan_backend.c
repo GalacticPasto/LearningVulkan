@@ -2,6 +2,7 @@
 #include "containers/darray.h"
 #include "core/dstring.h"
 #include "core/logger.h"
+#include "vulkan_device.h"
 #include "vulkan_platform.h"
 #include "vulkan_types.h"
 
@@ -12,7 +13,9 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(VkDebugUtilsMessageSeverityFlag
                                                  const VkDebugUtilsMessengerCallbackDataEXT *callbackData,
                                                  void                                       *userData);
 
-b8 vulkan_initialize(struct renderer_backend *backend, const char *application_name, struct platform_state *platSate)
+static void pick_physical_device();
+
+b8 vulkan_initialize(renderer_backend *backend, const char *application_name, struct platform_state *plat_state)
 {
 
     // typedef VkResult (VKAPI_PTR *PFN_vkCreateInstance)(const VkInstanceCreateInfo* pCreateInfo, const
@@ -128,7 +131,21 @@ b8 vulkan_initialize(struct renderer_backend *backend, const char *application_n
     DDEBUG("Vulkan debugger created.");
 #endif
 
+    // pick physical device
+
+    if (!vk_create_device(&context))
+    {
+        DFATAL("VULKAN logical device creation failed");
+        return false;
+    }
+
+    DINFO("VULKAN initialized");
+
     return true;
+}
+
+static void pick_physical_device()
+{
 }
 
 void vulkan_shutdown(struct renderer_backend *backend)
