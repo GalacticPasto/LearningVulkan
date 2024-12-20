@@ -16,8 +16,8 @@ typedef struct vulkan_physical_device_queue_family_info
 {
     u32 graphics_family_index;
     u32 present_family_index;
-    u32 compute_family_index;
     u32 transfer_family_index;
+    u32 compute_family_index;
 } vulkan_physical_device_queue_family_info;
 
 static b8   select_physical_device(vulkan_context *context);
@@ -32,12 +32,57 @@ b8 vk_create_device(vulkan_context *context)
     {
         return false;
     }
+    // create queues
+    u32 no_of_queues = 1;
 
-    return true;
-}
+    b8 transfer_queue_shares_graphics_queue =
+        context->device.graphics_queue_index == context->device.transfer_queue_index;
 
-b8 vk_destroy_device(vulkan_context *context)
-{
+    if (!transfer_queue_shares_graphics_queue)
+    {
+        no_of_queues++;
+    }
+
+    u32 queue_indicies[no_of_queues] = {};
+    u32 index                        = 0;
+    queue_indicies[index++]          = context->device.graphics_queue_index;
+
+    if (!transfer_queue_shares_graphics_queue)
+    {
+        queue_indicies[index++] = context->device.transfer_queue_index;
+    }
+
+    VkDeviceQueueCreateInfo queue_create_infos[no_of_queues];
+    for (i32 i = 0; i < no_of_queues; i++)
+    {
+        queue_create_infos[i].pNext            = 0;
+        queue_create_infos[i].flags            = 0;
+        queue_create_infos[i].sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queue_create_infos[i].queueFamilyIndex = queue_indicies[i];
+        queue_create_infos[i].queueCount       = 1;
+        f32 queue_priority                     = 1.0f;
+        queue_create_infos[i].pQueuePriorities = &queue_priority;
+    }
+
+    // create the logical device
+
+    VkPhysicalDeviceFeatures device_features_to_be_enabled = {};
+
+    VkDeviceCreateInfo device_create_info      = {};
+    device_create_info.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    device_create_info.queueCreateInfoCount    = no_of_queues;
+    device_create_info.pQueueCreateInfos       = queue_create_infos;
+    device_create_info.enabledExtensionCount   = 0;
+    device_create_info.ppEnabledExtensionNames = 0;
+    device_create_info.pEnabledFeatures        = &device_features_to_be_enabled;
+
+    VK_CHECK(vkCreateDevice(context->device.physical, &device_create_info, NULL, &context->device.logical));
+    DINFO("Created vulkan logical device");
+
+    // get the queues
+    vkGetDeviceQueue(context->device.logical, context->device.graphics_queue_index, 0, &context->device.graphics_queue);
+    vkGetDeviceQueue(context->device.logical, context->device.transfer_queue_index, 0, &context->device.transfer_queue);
+
     return true;
 }
 
@@ -130,10 +175,10 @@ b8 select_physical_device(vulkan_context *context)
                     DINFO("Shared System memory: %.2f GiB", memorySizeGib);
                 }
             }
-            context->device.physical_device = physical_devices[i];
-            context->device.properties      = device_properties;
-            context->device.features        = device_features;
-            context->device.memory          = device_memory;
+            context->device.physical   = physical_devices[i];
+            context->device.properties = device_properties;
+            context->device.features   = device_features;
+            context->device.memory     = device_memory;
 
             context->device.compute_queue_index  = queue_info.compute_family_index;
             context->device.graphics_queue_index = queue_info.graphics_family_index;
@@ -142,6 +187,7 @@ b8 select_physical_device(vulkan_context *context)
             return true;
         }
     }
+    DFATAL("GPU's dont meet the minimum requirements!!");
     return false;
 }
 static b8 is_device_suitable(const vulkan_physical_device_requirements *requirements,
@@ -175,10 +221,10 @@ static b8 is_device_suitable(const vulkan_physical_device_requirements *requirem
     for (i32 j = 0; j < queue_family_count; j++)
     {
 #if 0
-            char queue_types_buf[1024];
-            dset_memory(queue_types_buf, ' ', 1024);
-            populate_buf(queue_types_buf, queue_family_properties[j].queueFlags);
-            DINFO("Queue Count: %d , Queue Flags: %s", queue_family_properties[j].queueCount, queue_types_buf);
+        char queue_types_buf[1024];
+        dset_memory(queue_types_buf, ' ', 1024);
+        populate_buf(queue_types_buf, queue_family_properties[j].queueFlags);
+        DINFO("Queue Count: %d , Queue Flags: %s", queue_family_properties[j].queueCount, queue_types_buf);
 #endif
         u8 currentTransferScore = 0;
 
@@ -275,4 +321,10 @@ static void populate_buf(char *buf, VkQueueFlags queueFlags)
         write_str(buf, "VK_QUEUE_OPTICAL_FLOW_BIT_NV", &ind);
     }
     buf[ind] = '\0';
+}
+
+b8 vk_destroy_device(vulkan_context *context)
+{
+    vkDestroyDevice(context->device.logical, 0);
+    return true;
 }

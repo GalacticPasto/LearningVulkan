@@ -16,7 +16,7 @@ PLATFORM := $(shell (echo $$XDG_SESSION_TYPE))
 ifeq ($(strip $(PLATFORM)),wayland)
 DEFINES += -DDPLATFORM_LINUX_WAYLAND
 LINKER_FLAGS += -lwayland-client  
-else ifeq ($(strip $(PLATFORM)),x11)
+else 
 DEFINES += -DDPLATFORM_LINUX_X11
 LINKER_FLAGS += -lxcb -lX11 -lX11-xcb -L/usr/X11R6/lib
 endif 

@@ -11,7 +11,8 @@
 
 typedef struct vulkan_device
 {
-    VkPhysicalDevice physical_device;
+    VkPhysicalDevice physical;
+    VkDevice         logical;
 
     // device specific stuff
     VkPhysicalDeviceProperties       properties;
@@ -24,6 +25,10 @@ typedef struct vulkan_device
     i32 compute_queue_index;
     i32 transfer_queue_index;
 
+    // queues
+    VkQueue graphics_queue;
+    VkQueue transfer_queue;
+
 } vulkan_device;
 
 typedef struct vulkan_context
@@ -34,7 +39,7 @@ typedef struct vulkan_context
 #ifdef _DEBUG
     VkDebugUtilsMessengerEXT debug_messenger;
 #endif
-    // physical device
-
+    // physical device and logical device
     vulkan_device device;
+
 } vulkan_context;

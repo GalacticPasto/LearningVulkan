@@ -141,8 +141,11 @@ b8 application_run()
     event_unregister(EVENT_CODE_APPLICATION_QUIT, 0, application_on_event);
     event_unregister(EVENT_CODE_KEY_PRESSED, 0, application_on_key);
     event_unregister(EVENT_CODE_KEY_RELEASED, 0, application_on_key);
+
     event_shutdown();
     input_shutdown();
+
+    renderer_shutdown();
 
     platform_shutdown(&app_state.platform);
 

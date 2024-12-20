@@ -14,6 +14,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(VkDebugUtilsMessageSeverityFlag
                                                  void                                       *userData);
 
 static void pick_physical_device();
+void        vulkan_instance_destroy();
 
 b8 vulkan_initialize(renderer_backend *backend, const char *application_name, struct platform_state *plat_state)
 {
@@ -150,6 +151,21 @@ static void pick_physical_device()
 
 void vulkan_shutdown(struct renderer_backend *backend)
 {
+    DDEBUG("renderer shutdown msg recieved");
+
+    DDEBUG("Destroying vulkan device...");
+    DASSERT(vk_destroy_device(&context));
+
+    DDEBUG("Destroying vulkan debugMessenger...");
+    if (context.debug_messenger)
+    {
+        PFN_vkDestroyDebugUtilsMessengerEXT func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
+            context.vk_instance, "vkDestroyDebugUtilsMessengerEXT");
+        func(context.vk_instance, context.debug_messenger, 0);
+    }
+
+    DDEBUG("Destroying vulkan instance...");
+    vkDestroyInstance(context.vk_instance, 0);
 }
 
 void vulkan_resize(struct renderer_backend *backend, u16 width, u16 height)
