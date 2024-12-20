@@ -5,9 +5,9 @@
 
 typedef struct vulkan_physical_device_requirements
 {
-    b8 graphics_queue_index;
-    b8 compute_queue_index;
-    b8 transfer_queue_index;
+    b8 graphics_queue;
+    b8 compute_queue;
+    b8 transfer_queue;
     b8 discrete_gpu;
 
 } vulkan_physical_device_requirements;
@@ -21,7 +21,7 @@ typedef struct vulkan_physical_device_queue_family_info
 } vulkan_physical_device_queue_family_info;
 
 static b8   select_physical_device(vulkan_context *context);
-static b8   is_device_suitable(const vulkan_physical_device_requirements requirements,
+static b8   is_device_suitable(const vulkan_physical_device_requirements *requirements,
                                vulkan_physical_device_queue_family_info *queue_info, VkPhysicalDevice device,
                                const VkPhysicalDeviceProperties *properties, const VkPhysicalDeviceFeatures *features);
 static void populate_buf(char *queue_types_buf, VkQueueFlags queueFlags);
@@ -71,14 +71,14 @@ b8 select_physical_device(vulkan_context *context)
         vulkan_physical_device_requirements requirements = {};
 
         // for now we only have these requirements
-        requirements.discrete_gpu         = true;
-        requirements.graphics_queue_index = true;
-        requirements.compute_queue_index  = true;
-        requirements.transfer_queue_index = true;
+        requirements.discrete_gpu   = true;
+        requirements.graphics_queue = true;
+        requirements.compute_queue  = true;
+        requirements.transfer_queue = true;
 
         vulkan_physical_device_queue_family_info queue_info = {};
         b8                                       result =
-            is_device_suitable(requirements, &queue_info, physical_devices[i], &device_properties, &device_features);
+            is_device_suitable(&requirements, &queue_info, physical_devices[i], &device_properties, &device_features);
 
         if (result)
         {
@@ -138,11 +138,13 @@ b8 select_physical_device(vulkan_context *context)
             context->device.compute_queue_index  = queue_info.compute_family_index;
             context->device.graphics_queue_index = queue_info.graphics_family_index;
             context->device.transfer_queue_index = queue_info.transfer_family_index;
+
+            return true;
         }
     }
     return false;
 }
-static b8 is_device_suitable(const vulkan_physical_device_requirements requirements,
+static b8 is_device_suitable(const vulkan_physical_device_requirements *requirements,
                              vulkan_physical_device_queue_family_info *queue_info, VkPhysicalDevice device,
                              const VkPhysicalDeviceProperties *properties, const VkPhysicalDeviceFeatures *features)
 {
@@ -151,7 +153,7 @@ static b8 is_device_suitable(const vulkan_physical_device_requirements requireme
     queue_info->present_family_index  = -1;
     queue_info->compute_family_index  = -1;
 
-    if (requirements.discrete_gpu)
+    if (requirements->discrete_gpu)
     {
         if (properties->deviceType != VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
         {
@@ -209,6 +211,17 @@ static b8 is_device_suitable(const vulkan_physical_device_requirements requireme
     DINFO("       %d |       %d |        %d | %s", queue_info->graphics_family_index != -1,
           queue_info->compute_family_index != -1, queue_info->transfer_family_index != -1, properties->deviceName);
 
+    if ((!requirements->graphics_queue || (requirements->graphics_queue && queue_info->graphics_family_index != -1)) &&
+        (!requirements->compute_queue || (requirements->compute_queue && queue_info->compute_family_index != -1)) &&
+        (!requirements->transfer_queue || (requirements->transfer_queue && queue_info->transfer_family_index != -1)))
+    {
+
+        DTRACE("Graphics Family Index: %i", queue_info->graphics_family_index);
+        DTRACE("Transfer Family Index: %i", queue_info->transfer_family_index);
+        DTRACE("Compute Family Index:  %i", queue_info->compute_family_index);
+
+        return true;
+    }
     return false;
 }
 
