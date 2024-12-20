@@ -37,5 +37,4 @@ typedef struct vulkan_context
     // physical device
 
     vulkan_device device;
-
 } vulkan_context;
