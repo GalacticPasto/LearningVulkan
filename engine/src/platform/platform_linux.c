@@ -250,6 +250,11 @@ b8 platform_pump_messages(platform_state *plat_state)
     return !quit_flagged;
 }
 
+void platform_get_specific_surface_extensions(const char ***array)
+{
+    darray_push(*array, &"VK_KHR_xcb_surface");
+}
+
 b8 platform_create_vk_surface(platform_state *plat_state, struct vulkan_context *context)
 {
 
@@ -261,8 +266,8 @@ b8 platform_create_vk_surface(platform_state *plat_state, struct vulkan_context 
     surface_info.sType                     = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
     surface_info.pNext                     = 0;
     surface_info.flags                     = 0;
-    surface_info.display                   = state->display;
-    surface_info.surface                   = state->window;
+    surface_info.connection                = state->connection;
+    surface_info.window                    = state->window;
 
     VK_CHECK(vkCreateXcbSurfaceKHR(context->vk_instance, &surface_info, 0, &context->vk_surface));
 
@@ -538,11 +543,6 @@ keys translate_keycode(u32 wl_keycode)
         default:
             return 0;
     }
-}
-
-void platform_get_specific_surface_extensions(const char ***array)
-{
-    darray_push(*array, &"VK_KHR_xcb_surface");
 }
 
 #endif

@@ -132,12 +132,16 @@ b8 vulkan_initialize(renderer_backend *backend, const char *application_name, st
 #endif
 
     // get vulkan platform specific surface
-    platform_create_vk_surface(plat_state, &context);
+    if (!platform_create_vk_surface(plat_state, &context))
+    {
+        DERROR("Vulkan surface creation failed");
+        return false;
+    }
 
     // create physical device
     if (!vk_create_device(&context))
     {
-        DFATAL("Vulkan device creation failed");
+        DERROR("Vulkan device creation failed");
         return false;
     }
 

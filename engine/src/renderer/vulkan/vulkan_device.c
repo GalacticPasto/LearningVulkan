@@ -1,5 +1,6 @@
 #include "vulkan_device.h"
 #include "containers/darray.h"
+#include "core/dmemory.h"
 #include "core/dstring.h"
 #include "core/logger.h"
 
@@ -21,7 +22,7 @@ typedef struct vulkan_physical_device_queue_family_info
 } vulkan_physical_device_queue_family_info;
 
 static b8   select_physical_device(vulkan_context *context);
-static b8   is_device_suitable(const vulkan_physical_device_requirements *requirements,
+static b8   is_device_suitable(const VkSurfaceKHR surface, const vulkan_physical_device_requirements *requirements,
                                vulkan_physical_device_queue_family_info *queue_info, VkPhysicalDevice device,
                                const VkPhysicalDeviceProperties *properties, const VkPhysicalDeviceFeatures *features);
 static void populate_buf(char *queue_types_buf, VkQueueFlags queueFlags);
@@ -37,8 +38,14 @@ b8 vk_create_device(vulkan_context *context)
 
     b8 transfer_queue_shares_graphics_queue =
         context->vk_device.graphics_queue_index == context->vk_device.transfer_queue_index;
+    b8 present_queue_shares_graphics_queue =
+        context->vk_device.graphics_queue_index == context->vk_device.transfer_queue_index;
 
     if (!transfer_queue_shares_graphics_queue)
+    {
+        no_of_queues++;
+    }
+    if (!present_queue_shares_graphics_queue)
     {
         no_of_queues++;
     }
@@ -84,6 +91,8 @@ b8 vk_create_device(vulkan_context *context)
                      &context->vk_device.graphics_queue);
     vkGetDeviceQueue(context->vk_device.logical, context->vk_device.transfer_queue_index, 0,
                      &context->vk_device.transfer_queue);
+    vkGetDeviceQueue(context->vk_device.logical, context->vk_device.present_queue_index, 0,
+                     &context->vk_device.present_queue);
 
     return true;
 }
@@ -124,8 +133,8 @@ b8 select_physical_device(vulkan_context *context)
         requirements.transfer_queue = true;
 
         vulkan_physical_device_queue_family_info queue_info = {};
-        b8                                       result =
-            is_device_suitable(&requirements, &queue_info, physical_devices[i], &device_properties, &device_features);
+        b8 result = is_device_suitable(context->vk_surface, &requirements, &queue_info, physical_devices[i],
+                                       &device_properties, &device_features);
 
         if (result)
         {
@@ -185,6 +194,7 @@ b8 select_physical_device(vulkan_context *context)
             context->vk_device.compute_queue_index  = queue_info.compute_family_index;
             context->vk_device.graphics_queue_index = queue_info.graphics_family_index;
             context->vk_device.transfer_queue_index = queue_info.transfer_family_index;
+            context->vk_device.present_queue_index  = queue_info.present_family_index;
 
             return true;
         }
@@ -192,7 +202,7 @@ b8 select_physical_device(vulkan_context *context)
     DFATAL("GPU's dont meet the minimum requirements!!");
     return false;
 }
-static b8 is_device_suitable(const vulkan_physical_device_requirements *requirements,
+static b8 is_device_suitable(const VkSurfaceKHR surface, const vulkan_physical_device_requirements *requirements,
                              vulkan_physical_device_queue_family_info *queue_info, VkPhysicalDevice device,
                              const VkPhysicalDeviceProperties *properties, const VkPhysicalDeviceFeatures *features)
 {
@@ -217,16 +227,20 @@ static b8 is_device_suitable(const vulkan_physical_device_requirements *requirem
     VkQueueFamilyProperties *queue_family_properties = darray_reserve(VkQueueFamilyProperties, queue_family_count);
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, queue_family_properties);
 
-    DINFO("Graphics | Compute | Transfer | Name");
+    DINFO("Graphics | Compute | Transfer | Present | Name");
 
     u8 minTransferScore = 255;
     for (i32 j = 0; j < queue_family_count; j++)
     {
-#if 0
+#if 1
         char queue_types_buf[1024];
         dset_memory(queue_types_buf, ' ', 1024);
         populate_buf(queue_types_buf, queue_family_properties[j].queueFlags);
-        DINFO("Queue Count: %d , Queue Flags: %s", queue_family_properties[j].queueCount, queue_types_buf);
+        VkBool32 present_support_dbg = false;
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, j, surface, &present_support_dbg);
+        DINFO("Queue Count: %d | Queue Flags: %s | Does support present queue: %d",
+              queue_family_properties[j].queueCount, queue_types_buf, present_support_dbg);
+
 #endif
         u8 currentTransferScore = 0;
 
@@ -254,10 +268,19 @@ static b8 is_device_suitable(const vulkan_physical_device_requirements *requirem
                 queue_info->transfer_family_index = j;
             }
         }
+
+        VkBool32 present_support = false;
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, j, surface, &present_support);
+
+        if (present_support)
+        {
+            queue_info->present_family_index = j;
+        }
     }
 
-    DINFO("       %d |       %d |        %d | %s", queue_info->graphics_family_index != -1,
-          queue_info->compute_family_index != -1, queue_info->transfer_family_index != -1, properties->deviceName);
+    DINFO("        %d |      %d |       %d |        %d | %s", queue_info->graphics_family_index != -1,
+          queue_info->compute_family_index != -1, queue_info->transfer_family_index != -1,
+          queue_info->present_family_index != -1, properties->deviceName);
 
     if ((!requirements->graphics_queue || (requirements->graphics_queue && queue_info->graphics_family_index != -1)) &&
         (!requirements->compute_queue || (requirements->compute_queue && queue_info->compute_family_index != -1)) &&
@@ -267,6 +290,7 @@ static b8 is_device_suitable(const vulkan_physical_device_requirements *requirem
         DTRACE("Graphics Family Index: %i", queue_info->graphics_family_index);
         DTRACE("Transfer Family Index: %i", queue_info->transfer_family_index);
         DTRACE("Compute Family Index:  %i", queue_info->compute_family_index);
+        DTRACE("Present Family Index:  %i", queue_info->present_family_index);
 
         return true;
     }

@@ -5,7 +5,7 @@
 
 #ifdef DPLATFORM_LINUX_WAYLAND
 #define VK_USE_PLATFORM_WAYLAND_KHR
-#elif
+#else
 #define VK_USE_PLATFORM_XCB_KHR
 #endif
 
@@ -31,10 +31,12 @@ typedef struct vulkan_device
     i32 graphics_queue_index;
     i32 compute_queue_index;
     i32 transfer_queue_index;
+    i32 present_queue_index;
 
     // queues
     VkQueue graphics_queue;
     VkQueue transfer_queue;
+    VkQueue present_queue;
 
 } vulkan_device;
 
