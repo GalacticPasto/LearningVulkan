@@ -53,9 +53,9 @@ b8 vk_create_device(vulkan_context *context)
         no_of_queues++;
     }
 
-    u32 queue_indicies[no_of_queues] = {};
-    u32 index                        = 0;
-    queue_indicies[index++]          = context->vk_device.graphics_queue_index;
+    u32 queue_indicies[no_of_queues];
+    u32 index               = 0;
+    queue_indicies[index++] = context->vk_device.graphics_queue_index;
 
     if (!transfer_queue_shares_graphics_queue)
     {

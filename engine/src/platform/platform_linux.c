@@ -4,7 +4,7 @@
 #include "renderer/vulkan/vulkan_types.h"
 
 // Linux platform layer.
-#if DPLATFORM_LINUX
+#ifdef DPLATFORM_LINUX
 
 #include <stdio.h>
 #include <stdlib.h>

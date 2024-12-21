@@ -3,14 +3,6 @@
 #include "core/asserts.h"
 #include "defines.h"
 
-#ifdef DPLATFORM_LINUX_WAYLAND
-#define VK_USE_PLATFORM_WAYLAND_KHR
-#else
-#define VK_USE_PLATFORM_XCB_KHR
-#endif
-
-#include <vulkan/vulkan.h>
-
 #define VK_CHECK(exp)                                                                                                  \
     {                                                                                                                  \
         DASSERT(exp == VK_SUCCESS);                                                                                    \

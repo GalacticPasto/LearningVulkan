@@ -1,14 +1,20 @@
 #include "platform/platform.h"
 
-// Windows platform layer.
-#if KPLATFORM_WINDOWS
+#ifdef DPLATFORM_WINDOWS
 
 #include "core/input.h"
 #include "core/logger.h"
+#include "containers/darray.h"
 
 #include <stdlib.h>
 #include <windows.h>
 #include <windowsx.h> // param input extraction
+
+#include <vulkan/vulkan.h>
+#include <vulkan/vulkan_win32.h>
+
+#include "renderer/vulkan/vulkan_types.h"
+
 
 typedef struct internal_state
 {
@@ -134,20 +140,26 @@ b8 platform_pump_messages(platform_state *plat_state)
     return true;
 }
 
-b8 platform_create_vk_surface(platform_state *plat_state, struct vulkan_context *context)
+void platform_get_specific_surface_extensions(const char ***array)
+{
+    darray_push(*array, &"VK_KHR_win32_surface");
+}
+
+b8 platform_create_vk_surface(platform_state *plat_state, vulkan_context *context)
 {
     DTRACE("Creating win32 surface...");
 
     internal_state *state = (internal_state *)plat_state->internal_state;
 
     VkWin32SurfaceCreateInfoKHR surface_info = {};
-    surface_info.sType                       = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-    surface_info.pNext                       = 0;
-    surface_info.flags                       = 0;
-    surface_info.hinstance                   = state->h_instance;
-    surface_info.hwnd                        = state->hwnd;
 
-    VK_CHECK(vkCreateXcbSurfaceKHR(context->vk_instance, &surface_info, 0, &context->vk_surface));
+    surface_info.sType     = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+    surface_info.pNext     = 0;
+    surface_info.flags     = 0;
+    surface_info.hinstance = state->h_instance;
+    surface_info.hwnd      = state->hwnd;
+
+    VK_CHECK(vkCreateWin32SurfaceKHR(context->vk_instance, &surface_info, 0, &context->vk_surface));
 
     DINFO("Created win32 surface");
 
@@ -305,4 +317,4 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARA
     return DefWindowProcA(hwnd, msg, w_param, l_param);
 }
 
-#endif // KPLATFORM_WINDOWS
+#endif // DPLATFORM_WINDOWS
