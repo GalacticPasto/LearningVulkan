@@ -38,8 +38,9 @@ b8 vk_create_device(vulkan_context *context)
 
     b8 transfer_queue_shares_graphics_queue =
         context->vk_device.graphics_queue_index == context->vk_device.transfer_queue_index;
+
     b8 present_queue_shares_graphics_queue =
-        context->vk_device.graphics_queue_index == context->vk_device.transfer_queue_index;
+        context->vk_device.graphics_queue_index == context->vk_device.present_queue_index;
 
     if (!transfer_queue_shares_graphics_queue)
     {
@@ -57,6 +58,10 @@ b8 vk_create_device(vulkan_context *context)
     if (!transfer_queue_shares_graphics_queue)
     {
         queue_indicies[index++] = context->vk_device.transfer_queue_index;
+    }
+    if (!present_queue_shares_graphics_queue)
+    {
+        queue_indicies[index++] = context->vk_device.present_queue_index;
     }
 
     VkDeviceQueueCreateInfo queue_create_infos[no_of_queues];
