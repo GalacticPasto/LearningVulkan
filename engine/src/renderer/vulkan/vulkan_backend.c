@@ -158,6 +158,9 @@ void vulkan_shutdown(struct renderer_backend *backend)
     DDEBUG("Destroying vulkan device...");
     DASSERT(vk_destroy_device(&context));
 
+    DDEBUG("Destroying vulkan surface...");
+    vkDestroySurfaceKHR(context.vk_instance, context.vk_surface, 0);
+
     DDEBUG("Destroying vulkan debugMessenger...");
     if (context.debug_messenger)
     {
@@ -165,9 +168,6 @@ void vulkan_shutdown(struct renderer_backend *backend)
             context.vk_instance, "vkDestroyDebugUtilsMessengerEXT");
         func(context.vk_instance, context.debug_messenger, 0);
     }
-
-    DDEBUG("Destroying vulkan surface...");
-    vkDestroySurfaceKHR(context.vk_instance, context.vk_surface, 0);
 
     DDEBUG("Destroying vulkan instance...");
     vkDestroyInstance(context.vk_instance, 0);
