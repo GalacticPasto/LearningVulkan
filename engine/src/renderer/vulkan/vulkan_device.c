@@ -356,7 +356,9 @@ static b8 is_device_suitable(const VkSurfaceKHR surface, const vulkan_physical_d
                 dfree(out_swapchain_info->present_modes, sizeof(VkPresentModeKHR) * out_swapchain_info->present_mode_count, MEMORY_TAG_RENDERER);
             }
             DINFO("Curent GPU doesnt meet the swapchain requirements, skipping...");
+            return false;
         }
+
         return true;
     }
     return false;
@@ -377,7 +379,7 @@ static void write_str(char *buf, char *str, i32 *start)
 
 static void vk_query_swapchain_support_info(VkPhysicalDevice device, VkSurfaceKHR surface, vulkan_swapchain_support_info *out_swapchain_info)
 {
-    VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &out_swapchain_info->surface_capabilites));
+    VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &out_swapchain_info->surface_capabilities));
 
     VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &out_swapchain_info->format_count, 0));
 

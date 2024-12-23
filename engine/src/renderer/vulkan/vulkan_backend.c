@@ -4,6 +4,7 @@
 #include "core/logger.h"
 #include "vulkan_device.h"
 #include "vulkan_platform.h"
+#include "vulkan_swapchain.h"
 #include "vulkan_types.h"
 
 static vulkan_context context = {};
@@ -15,9 +16,9 @@ void vulkan_instance_destroy();
 
 b8 vulkan_initialize(renderer_backend *backend, const char *application_name, struct platform_state *plat_state)
 {
+    context.frame_buffer_width  = 800;
+    context.frame_buffer_height = 600;
 
-    // typedef VkResult (VKAPI_PTR *PFN_vkCreateInstance)(const VkInstanceCreateInfo* pCreateInfo, const
-    // VkAllocationCallbacks* pAllocator, VkInstance* pInstance);
     //  initialize a vk instance
     VkApplicationInfo app_info = {};
 
@@ -139,12 +140,23 @@ b8 vulkan_initialize(renderer_backend *backend, const char *application_name, st
         return false;
     }
 
+    // create swapchain
+    if (!vk_create_swapchain(&context, context.frame_buffer_width, context.frame_buffer_height))
+    {
+        DERROR("Swapchain creation failed");
+        return false;
+    }
+
     DINFO("VULKAN initialized");
     return true;
 }
 
 void vulkan_shutdown(struct renderer_backend *backend)
 {
+
+    DDEBUG("Destroying swapchain...");
+    DASSERT(vk_destroy_swapchain(&context));
+
     DDEBUG("Destroying vulkan device...");
     DASSERT(vk_destroy_device(&context));
 
