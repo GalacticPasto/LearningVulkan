@@ -1,6 +1,6 @@
+#include "core/input.h"
 #include "core/dmemory.h"
 #include "core/event.h"
-#include "core/input.h"
 #include "core/logger.h"
 
 typedef struct keyboard_state
@@ -25,7 +25,7 @@ typedef struct input_state
 
 // Internal input state
 static b8          initialized = false;
-static input_state state = {};
+static input_state state       = {};
 
 void input_initialize()
 {

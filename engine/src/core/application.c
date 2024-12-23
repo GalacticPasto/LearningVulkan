@@ -64,9 +64,8 @@ b8 application_create(game *game_inst)
     event_register(EVENT_CODE_KEY_PRESSED, 0, application_on_key);
     event_register(EVENT_CODE_KEY_RELEASED, 0, application_on_key);
 
-    if (!platform_startup(&app_state.platform, game_inst->app_config.name, game_inst->app_config.start_pos_x,
-                          game_inst->app_config.start_pos_y, game_inst->app_config.start_width,
-                          game_inst->app_config.start_height))
+    if (!platform_startup(&app_state.platform, game_inst->app_config.name, game_inst->app_config.start_pos_x, game_inst->app_config.start_pos_y,
+                          game_inst->app_config.start_width, game_inst->app_config.start_height))
     {
         DFATAL("platform startup failed");
         return false;

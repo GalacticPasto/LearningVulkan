@@ -436,8 +436,7 @@ extern "C"
     /**
      * @ingroup iface_xdg_wm_base
      */
-    static inline int xdg_wm_base_add_listener(struct xdg_wm_base                *xdg_wm_base,
-                                               const struct xdg_wm_base_listener *listener, void *data)
+    static inline int xdg_wm_base_add_listener(struct xdg_wm_base *xdg_wm_base, const struct xdg_wm_base_listener *listener, void *data)
     {
         return wl_proxy_add_listener((struct wl_proxy *)xdg_wm_base, (void (**)(void))listener, data);
     }
@@ -497,8 +496,8 @@ extern "C"
      */
     static inline void xdg_wm_base_destroy(struct xdg_wm_base *xdg_wm_base)
     {
-        wl_proxy_marshal_flags((struct wl_proxy *)xdg_wm_base, XDG_WM_BASE_DESTROY, NULL,
-                               wl_proxy_get_version((struct wl_proxy *)xdg_wm_base), WL_MARSHAL_FLAG_DESTROY);
+        wl_proxy_marshal_flags((struct wl_proxy *)xdg_wm_base, XDG_WM_BASE_DESTROY, NULL, wl_proxy_get_version((struct wl_proxy *)xdg_wm_base),
+                               WL_MARSHAL_FLAG_DESTROY);
     }
 
     /**
@@ -512,9 +511,8 @@ extern "C"
     {
         struct wl_proxy *id;
 
-        id = wl_proxy_marshal_flags((struct wl_proxy *)xdg_wm_base, XDG_WM_BASE_CREATE_POSITIONER,
-                                    &xdg_positioner_interface, wl_proxy_get_version((struct wl_proxy *)xdg_wm_base), 0,
-                                    NULL);
+        id = wl_proxy_marshal_flags((struct wl_proxy *)xdg_wm_base, XDG_WM_BASE_CREATE_POSITIONER, &xdg_positioner_interface,
+                                    wl_proxy_get_version((struct wl_proxy *)xdg_wm_base), 0, NULL);
 
         return (struct xdg_positioner *)id;
     }
@@ -536,8 +534,7 @@ extern "C"
      * See the documentation of xdg_surface for more details about what an
      * xdg_surface is and how it is used.
      */
-    static inline struct xdg_surface *xdg_wm_base_get_xdg_surface(struct xdg_wm_base *xdg_wm_base,
-                                                                  struct wl_surface  *surface)
+    static inline struct xdg_surface *xdg_wm_base_get_xdg_surface(struct xdg_wm_base *xdg_wm_base, struct wl_surface *surface)
     {
         struct wl_proxy *id;
 
@@ -556,8 +553,8 @@ extern "C"
      */
     static inline void xdg_wm_base_pong(struct xdg_wm_base *xdg_wm_base, uint32_t serial)
     {
-        wl_proxy_marshal_flags((struct wl_proxy *)xdg_wm_base, XDG_WM_BASE_PONG, NULL,
-                               wl_proxy_get_version((struct wl_proxy *)xdg_wm_base), 0, serial);
+        wl_proxy_marshal_flags((struct wl_proxy *)xdg_wm_base, XDG_WM_BASE_PONG, NULL, wl_proxy_get_version((struct wl_proxy *)xdg_wm_base), 0,
+                               serial);
     }
 
 #ifndef XDG_POSITIONER_ERROR_ENUM
@@ -575,14 +572,14 @@ extern "C"
 #define XDG_POSITIONER_ANCHOR_ENUM
     enum xdg_positioner_anchor
     {
-        XDG_POSITIONER_ANCHOR_NONE = 0,
-        XDG_POSITIONER_ANCHOR_TOP = 1,
-        XDG_POSITIONER_ANCHOR_BOTTOM = 2,
-        XDG_POSITIONER_ANCHOR_LEFT = 3,
-        XDG_POSITIONER_ANCHOR_RIGHT = 4,
-        XDG_POSITIONER_ANCHOR_TOP_LEFT = 5,
-        XDG_POSITIONER_ANCHOR_BOTTOM_LEFT = 6,
-        XDG_POSITIONER_ANCHOR_TOP_RIGHT = 7,
+        XDG_POSITIONER_ANCHOR_NONE         = 0,
+        XDG_POSITIONER_ANCHOR_TOP          = 1,
+        XDG_POSITIONER_ANCHOR_BOTTOM       = 2,
+        XDG_POSITIONER_ANCHOR_LEFT         = 3,
+        XDG_POSITIONER_ANCHOR_RIGHT        = 4,
+        XDG_POSITIONER_ANCHOR_TOP_LEFT     = 5,
+        XDG_POSITIONER_ANCHOR_BOTTOM_LEFT  = 6,
+        XDG_POSITIONER_ANCHOR_TOP_RIGHT    = 7,
         XDG_POSITIONER_ANCHOR_BOTTOM_RIGHT = 8,
     };
 #endif /* XDG_POSITIONER_ANCHOR_ENUM */
@@ -591,14 +588,14 @@ extern "C"
 #define XDG_POSITIONER_GRAVITY_ENUM
     enum xdg_positioner_gravity
     {
-        XDG_POSITIONER_GRAVITY_NONE = 0,
-        XDG_POSITIONER_GRAVITY_TOP = 1,
-        XDG_POSITIONER_GRAVITY_BOTTOM = 2,
-        XDG_POSITIONER_GRAVITY_LEFT = 3,
-        XDG_POSITIONER_GRAVITY_RIGHT = 4,
-        XDG_POSITIONER_GRAVITY_TOP_LEFT = 5,
-        XDG_POSITIONER_GRAVITY_BOTTOM_LEFT = 6,
-        XDG_POSITIONER_GRAVITY_TOP_RIGHT = 7,
+        XDG_POSITIONER_GRAVITY_NONE         = 0,
+        XDG_POSITIONER_GRAVITY_TOP          = 1,
+        XDG_POSITIONER_GRAVITY_BOTTOM       = 2,
+        XDG_POSITIONER_GRAVITY_LEFT         = 3,
+        XDG_POSITIONER_GRAVITY_RIGHT        = 4,
+        XDG_POSITIONER_GRAVITY_TOP_LEFT     = 5,
+        XDG_POSITIONER_GRAVITY_BOTTOM_LEFT  = 6,
+        XDG_POSITIONER_GRAVITY_TOP_RIGHT    = 7,
         XDG_POSITIONER_GRAVITY_BOTTOM_RIGHT = 8,
     };
 #endif /* XDG_POSITIONER_GRAVITY_ENUM */
@@ -821,8 +818,7 @@ extern "C"
      *
      * If a negative size is set the invalid_input error is raised.
      */
-    static inline void xdg_positioner_set_anchor_rect(struct xdg_positioner *xdg_positioner, int32_t x, int32_t y,
-                                                      int32_t width, int32_t height)
+    static inline void xdg_positioner_set_anchor_rect(struct xdg_positioner *xdg_positioner, int32_t x, int32_t y, int32_t width, int32_t height)
     {
         wl_proxy_marshal_flags((struct wl_proxy *)xdg_positioner, XDG_POSITIONER_SET_ANCHOR_RECT, NULL,
                                wl_proxy_get_version((struct wl_proxy *)xdg_positioner), 0, x, y, width, height);
@@ -878,8 +874,7 @@ extern "C"
      *
      * The default adjustment is none.
      */
-    static inline void xdg_positioner_set_constraint_adjustment(struct xdg_positioner *xdg_positioner,
-                                                                uint32_t               constraint_adjustment)
+    static inline void xdg_positioner_set_constraint_adjustment(struct xdg_positioner *xdg_positioner, uint32_t constraint_adjustment)
     {
         wl_proxy_marshal_flags((struct wl_proxy *)xdg_positioner, XDG_POSITIONER_SET_CONSTRAINT_ADJUSTMENT, NULL,
                                wl_proxy_get_version((struct wl_proxy *)xdg_positioner), 0, constraint_adjustment);
@@ -933,8 +928,7 @@ extern "C"
      *
      * The arguments are given in the surface-local coordinate space.
      */
-    static inline void xdg_positioner_set_parent_size(struct xdg_positioner *xdg_positioner, int32_t parent_width,
-                                                      int32_t parent_height)
+    static inline void xdg_positioner_set_parent_size(struct xdg_positioner *xdg_positioner, int32_t parent_width, int32_t parent_height)
     {
         wl_proxy_marshal_flags((struct wl_proxy *)xdg_positioner, XDG_POSITIONER_SET_PARENT_SIZE, NULL,
                                wl_proxy_get_version((struct wl_proxy *)xdg_positioner), 0, parent_width, parent_height);
@@ -1021,8 +1015,7 @@ extern "C"
     /**
      * @ingroup iface_xdg_surface
      */
-    static inline int xdg_surface_add_listener(struct xdg_surface                *xdg_surface,
-                                               const struct xdg_surface_listener *listener, void *data)
+    static inline int xdg_surface_add_listener(struct xdg_surface *xdg_surface, const struct xdg_surface_listener *listener, void *data)
     {
         return wl_proxy_add_listener((struct wl_proxy *)xdg_surface, (void (**)(void))listener, data);
     }
@@ -1085,8 +1078,8 @@ extern "C"
      */
     static inline void xdg_surface_destroy(struct xdg_surface *xdg_surface)
     {
-        wl_proxy_marshal_flags((struct wl_proxy *)xdg_surface, XDG_SURFACE_DESTROY, NULL,
-                               wl_proxy_get_version((struct wl_proxy *)xdg_surface), WL_MARSHAL_FLAG_DESTROY);
+        wl_proxy_marshal_flags((struct wl_proxy *)xdg_surface, XDG_SURFACE_DESTROY, NULL, wl_proxy_get_version((struct wl_proxy *)xdg_surface),
+                               WL_MARSHAL_FLAG_DESTROY);
     }
 
     /**
@@ -1172,8 +1165,7 @@ extern "C"
      * greater than zero. Setting an invalid size will raise an
      * invalid_size error.
      */
-    static inline void xdg_surface_set_window_geometry(struct xdg_surface *xdg_surface, int32_t x, int32_t y,
-                                                       int32_t width, int32_t height)
+    static inline void xdg_surface_set_window_geometry(struct xdg_surface *xdg_surface, int32_t x, int32_t y, int32_t width, int32_t height)
     {
         wl_proxy_marshal_flags((struct wl_proxy *)xdg_surface, XDG_SURFACE_SET_WINDOW_GEOMETRY, NULL,
                                wl_proxy_get_version((struct wl_proxy *)xdg_surface), 0, x, y, width, height);
@@ -1217,8 +1209,8 @@ extern "C"
      */
     static inline void xdg_surface_ack_configure(struct xdg_surface *xdg_surface, uint32_t serial)
     {
-        wl_proxy_marshal_flags((struct wl_proxy *)xdg_surface, XDG_SURFACE_ACK_CONFIGURE, NULL,
-                               wl_proxy_get_version((struct wl_proxy *)xdg_surface), 0, serial);
+        wl_proxy_marshal_flags((struct wl_proxy *)xdg_surface, XDG_SURFACE_ACK_CONFIGURE, NULL, wl_proxy_get_version((struct wl_proxy *)xdg_surface),
+                               0, serial);
     }
 
 #ifndef XDG_TOPLEVEL_ERROR_ENUM
@@ -1251,14 +1243,14 @@ extern "C"
      */
     enum xdg_toplevel_resize_edge
     {
-        XDG_TOPLEVEL_RESIZE_EDGE_NONE = 0,
-        XDG_TOPLEVEL_RESIZE_EDGE_TOP = 1,
-        XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM = 2,
-        XDG_TOPLEVEL_RESIZE_EDGE_LEFT = 4,
-        XDG_TOPLEVEL_RESIZE_EDGE_TOP_LEFT = 5,
-        XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_LEFT = 6,
-        XDG_TOPLEVEL_RESIZE_EDGE_RIGHT = 8,
-        XDG_TOPLEVEL_RESIZE_EDGE_TOP_RIGHT = 9,
+        XDG_TOPLEVEL_RESIZE_EDGE_NONE         = 0,
+        XDG_TOPLEVEL_RESIZE_EDGE_TOP          = 1,
+        XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM       = 2,
+        XDG_TOPLEVEL_RESIZE_EDGE_LEFT         = 4,
+        XDG_TOPLEVEL_RESIZE_EDGE_TOP_LEFT     = 5,
+        XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_LEFT  = 6,
+        XDG_TOPLEVEL_RESIZE_EDGE_RIGHT        = 8,
+        XDG_TOPLEVEL_RESIZE_EDGE_TOP_RIGHT    = 9,
         XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_RIGHT = 10,
     };
 #endif /* XDG_TOPLEVEL_RESIZE_EDGE_ENUM */
@@ -1450,8 +1442,7 @@ extern "C"
          * See xdg_surface.configure and xdg_surface.ack_configure for
          * details.
          */
-        void (*configure)(void *data, struct xdg_toplevel *xdg_toplevel, int32_t width, int32_t height,
-                          struct wl_array *states);
+        void (*configure)(void *data, struct xdg_toplevel *xdg_toplevel, int32_t width, int32_t height, struct wl_array *states);
         /**
          * surface wants to be closed
          *
@@ -1520,8 +1511,7 @@ extern "C"
     /**
      * @ingroup iface_xdg_toplevel
      */
-    static inline int xdg_toplevel_add_listener(struct xdg_toplevel                *xdg_toplevel,
-                                                const struct xdg_toplevel_listener *listener, void *data)
+    static inline int xdg_toplevel_add_listener(struct xdg_toplevel *xdg_toplevel, const struct xdg_toplevel_listener *listener, void *data)
     {
         return wl_proxy_add_listener((struct wl_proxy *)xdg_toplevel, (void (**)(void))listener, data);
     }
@@ -1640,8 +1630,8 @@ extern "C"
      */
     static inline void xdg_toplevel_destroy(struct xdg_toplevel *xdg_toplevel)
     {
-        wl_proxy_marshal_flags((struct wl_proxy *)xdg_toplevel, XDG_TOPLEVEL_DESTROY, NULL,
-                               wl_proxy_get_version((struct wl_proxy *)xdg_toplevel), WL_MARSHAL_FLAG_DESTROY);
+        wl_proxy_marshal_flags((struct wl_proxy *)xdg_toplevel, XDG_TOPLEVEL_DESTROY, NULL, wl_proxy_get_version((struct wl_proxy *)xdg_toplevel),
+                               WL_MARSHAL_FLAG_DESTROY);
     }
 
     /**
@@ -1670,8 +1660,8 @@ extern "C"
      */
     static inline void xdg_toplevel_set_parent(struct xdg_toplevel *xdg_toplevel, struct xdg_toplevel *parent)
     {
-        wl_proxy_marshal_flags((struct wl_proxy *)xdg_toplevel, XDG_TOPLEVEL_SET_PARENT, NULL,
-                               wl_proxy_get_version((struct wl_proxy *)xdg_toplevel), 0, parent);
+        wl_proxy_marshal_flags((struct wl_proxy *)xdg_toplevel, XDG_TOPLEVEL_SET_PARENT, NULL, wl_proxy_get_version((struct wl_proxy *)xdg_toplevel),
+                               0, parent);
     }
 
     /**
@@ -1687,8 +1677,8 @@ extern "C"
      */
     static inline void xdg_toplevel_set_title(struct xdg_toplevel *xdg_toplevel, const char *title)
     {
-        wl_proxy_marshal_flags((struct wl_proxy *)xdg_toplevel, XDG_TOPLEVEL_SET_TITLE, NULL,
-                               wl_proxy_get_version((struct wl_proxy *)xdg_toplevel), 0, title);
+        wl_proxy_marshal_flags((struct wl_proxy *)xdg_toplevel, XDG_TOPLEVEL_SET_TITLE, NULL, wl_proxy_get_version((struct wl_proxy *)xdg_toplevel),
+                               0, title);
     }
 
     /**
@@ -1720,8 +1710,8 @@ extern "C"
      */
     static inline void xdg_toplevel_set_app_id(struct xdg_toplevel *xdg_toplevel, const char *app_id)
     {
-        wl_proxy_marshal_flags((struct wl_proxy *)xdg_toplevel, XDG_TOPLEVEL_SET_APP_ID, NULL,
-                               wl_proxy_get_version((struct wl_proxy *)xdg_toplevel), 0, app_id);
+        wl_proxy_marshal_flags((struct wl_proxy *)xdg_toplevel, XDG_TOPLEVEL_SET_APP_ID, NULL, wl_proxy_get_version((struct wl_proxy *)xdg_toplevel),
+                               0, app_id);
     }
 
     /**
@@ -1740,8 +1730,7 @@ extern "C"
      * This request must be used in response to some sort of user action
      * like a button press, key press, or touch down event.
      */
-    static inline void xdg_toplevel_show_window_menu(struct xdg_toplevel *xdg_toplevel, struct wl_seat *seat,
-                                                     uint32_t serial, int32_t x, int32_t y)
+    static inline void xdg_toplevel_show_window_menu(struct xdg_toplevel *xdg_toplevel, struct wl_seat *seat, uint32_t serial, int32_t x, int32_t y)
     {
         wl_proxy_marshal_flags((struct wl_proxy *)xdg_toplevel, XDG_TOPLEVEL_SHOW_WINDOW_MENU, NULL,
                                wl_proxy_get_version((struct wl_proxy *)xdg_toplevel), 0, seat, serial, x, y);
@@ -1769,8 +1758,8 @@ extern "C"
      */
     static inline void xdg_toplevel_move(struct xdg_toplevel *xdg_toplevel, struct wl_seat *seat, uint32_t serial)
     {
-        wl_proxy_marshal_flags((struct wl_proxy *)xdg_toplevel, XDG_TOPLEVEL_MOVE, NULL,
-                               wl_proxy_get_version((struct wl_proxy *)xdg_toplevel), 0, seat, serial);
+        wl_proxy_marshal_flags((struct wl_proxy *)xdg_toplevel, XDG_TOPLEVEL_MOVE, NULL, wl_proxy_get_version((struct wl_proxy *)xdg_toplevel), 0,
+                               seat, serial);
     }
 
     /**
@@ -1808,11 +1797,10 @@ extern "C"
      * use this information to adapt its behavior, e.g. choose an appropriate
      * cursor image.
      */
-    static inline void xdg_toplevel_resize(struct xdg_toplevel *xdg_toplevel, struct wl_seat *seat, uint32_t serial,
-                                           uint32_t edges)
+    static inline void xdg_toplevel_resize(struct xdg_toplevel *xdg_toplevel, struct wl_seat *seat, uint32_t serial, uint32_t edges)
     {
-        wl_proxy_marshal_flags((struct wl_proxy *)xdg_toplevel, XDG_TOPLEVEL_RESIZE, NULL,
-                               wl_proxy_get_version((struct wl_proxy *)xdg_toplevel), 0, seat, serial, edges);
+        wl_proxy_marshal_flags((struct wl_proxy *)xdg_toplevel, XDG_TOPLEVEL_RESIZE, NULL, wl_proxy_get_version((struct wl_proxy *)xdg_toplevel), 0,
+                               seat, serial, edges);
     }
 
     /**
@@ -2115,8 +2103,7 @@ extern "C"
     /**
      * @ingroup iface_xdg_popup
      */
-    static inline int xdg_popup_add_listener(struct xdg_popup *xdg_popup, const struct xdg_popup_listener *listener,
-                                             void *data)
+    static inline int xdg_popup_add_listener(struct xdg_popup *xdg_popup, const struct xdg_popup_listener *listener, void *data)
     {
         return wl_proxy_add_listener((struct wl_proxy *)xdg_popup, (void (**)(void))listener, data);
     }
@@ -2179,8 +2166,8 @@ extern "C"
      */
     static inline void xdg_popup_destroy(struct xdg_popup *xdg_popup)
     {
-        wl_proxy_marshal_flags((struct wl_proxy *)xdg_popup, XDG_POPUP_DESTROY, NULL,
-                               wl_proxy_get_version((struct wl_proxy *)xdg_popup), WL_MARSHAL_FLAG_DESTROY);
+        wl_proxy_marshal_flags((struct wl_proxy *)xdg_popup, XDG_POPUP_DESTROY, NULL, wl_proxy_get_version((struct wl_proxy *)xdg_popup),
+                               WL_MARSHAL_FLAG_DESTROY);
     }
 
     /**
@@ -2226,8 +2213,8 @@ extern "C"
      */
     static inline void xdg_popup_grab(struct xdg_popup *xdg_popup, struct wl_seat *seat, uint32_t serial)
     {
-        wl_proxy_marshal_flags((struct wl_proxy *)xdg_popup, XDG_POPUP_GRAB, NULL,
-                               wl_proxy_get_version((struct wl_proxy *)xdg_popup), 0, seat, serial);
+        wl_proxy_marshal_flags((struct wl_proxy *)xdg_popup, XDG_POPUP_GRAB, NULL, wl_proxy_get_version((struct wl_proxy *)xdg_popup), 0, seat,
+                               serial);
     }
 
     /**
@@ -2257,11 +2244,10 @@ extern "C"
      * resized, but not in response to a configure event, the client should
      * send an xdg_positioner.set_parent_size request.
      */
-    static inline void xdg_popup_reposition(struct xdg_popup *xdg_popup, struct xdg_positioner *positioner,
-                                            uint32_t token)
+    static inline void xdg_popup_reposition(struct xdg_popup *xdg_popup, struct xdg_positioner *positioner, uint32_t token)
     {
-        wl_proxy_marshal_flags((struct wl_proxy *)xdg_popup, XDG_POPUP_REPOSITION, NULL,
-                               wl_proxy_get_version((struct wl_proxy *)xdg_popup), 0, positioner, token);
+        wl_proxy_marshal_flags((struct wl_proxy *)xdg_popup, XDG_POPUP_REPOSITION, NULL, wl_proxy_get_version((struct wl_proxy *)xdg_popup), 0,
+                               positioner, token);
     }
 
 #ifdef __cplusplus

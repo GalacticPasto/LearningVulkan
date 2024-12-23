@@ -89,8 +89,7 @@ void *_darray_pop_at(void *array, u64 index, void *dest)
     // If not on the last element, snip out the entry and copy the rest inward.
     if (index != length - 1)
     {
-        dcopy_memory((void *)(addr + (index * stride)), (void *)(addr + ((index + 1) * stride)),
-                     stride * (length - index));
+        dcopy_memory((void *)(addr + (index * stride)), (void *)(addr + ((index + 1) * stride)), stride * (length - index));
     }
 
     _darray_field_set(array, DARRAY_LENGTH, length - 1);
@@ -116,8 +115,7 @@ void *__darray_insert_at(void *array, u64 index, void *value_ptr)
     // If not on the last element, copy the rest outward.
     if (index != length - 1)
     {
-        dcopy_memory((void *)(addr + ((index + 1) * stride)), (void *)(addr + (index * stride)),
-                     stride * (length - index));
+        dcopy_memory((void *)(addr + ((index + 1) * stride)), (void *)(addr + (index * stride)), stride * (length - index));
     }
 
     // Set the value at the index

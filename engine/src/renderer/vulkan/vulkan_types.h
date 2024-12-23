@@ -5,16 +5,19 @@
 
 #include <vulkan/vulkan.h>
 
-#define VK_CHECK(exp)                                                                                                  \
-    {                                                                                                                  \
-        DASSERT(exp == VK_SUCCESS);                                                                                    \
+#define VK_CHECK(exp)                                                                                                                                \
+    {                                                                                                                                                \
+        DASSERT(exp == VK_SUCCESS);                                                                                                                  \
     }
 
 typedef struct vulkan_swapchain_support_info
 {
+    u32 format_count;
+    u32 present_mode_count;
+
     VkSurfaceCapabilitiesKHR surface_capabilites;
     VkSurfaceFormatKHR      *formats;
-    VkPresentModeKHR        *presentModes;
+    VkPresentModeKHR        *present_modes;
 } vulkan_swapchain_support_info;
 
 typedef struct vulkan_device

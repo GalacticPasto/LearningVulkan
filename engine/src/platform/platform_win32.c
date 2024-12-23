@@ -2,9 +2,9 @@
 
 #ifdef DPLATFORM_WINDOWS
 
+#include "containers/darray.h"
 #include "core/input.h"
 #include "core/logger.h"
-#include "containers/darray.h"
 
 #include <stdlib.h>
 #include <windows.h>
@@ -14,7 +14,6 @@
 #include <vulkan/vulkan_win32.h>
 
 #include "renderer/vulkan/vulkan_types.h"
-
 
 typedef struct internal_state
 {
@@ -85,8 +84,8 @@ b8 platform_startup(platform_state *plat_state, const char *application_name, i3
     window_width += border_rect.right - border_rect.left;
     window_height += border_rect.bottom - border_rect.top;
 
-    HWND handle = CreateWindowExA(window_ex_style, "kohi_window_class", application_name, window_style, window_x,
-                                  window_y, window_width, window_height, 0, 0, state->h_instance, 0);
+    HWND handle = CreateWindowExA(window_ex_style, "kohi_window_class", application_name, window_style, window_x, window_y, window_width,
+                                  window_height, 0, 0, state->h_instance, 0);
 
     if (handle == 0)
     {

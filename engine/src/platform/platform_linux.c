@@ -89,9 +89,8 @@ b8 platform_startup(platform_state *plat_state, const char *application_name, i3
     u32 event_mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
 
     // Listen for keyboard and mouse buttons
-    u32 event_values = XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_KEY_PRESS |
-                       XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_POINTER_MOTION |
-                       XCB_EVENT_MASK_STRUCTURE_NOTIFY;
+    u32 event_values = XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE |
+                       XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_POINTER_MOTION | XCB_EVENT_MASK_STRUCTURE_NOTIFY;
 
     // Values to be sent over XCB (bg colour, events)
     u32 value_list[] = {state->screen->black_pixel, event_values};
@@ -116,17 +115,14 @@ b8 platform_startup(platform_state *plat_state, const char *application_name, i3
 
     // Tell the server to notify when the window manager
     // attempts to destroy the window.
-    xcb_intern_atom_cookie_t wm_delete_cookie =
-        xcb_intern_atom(state->connection, 0, strlen("WM_DELETE_WINDOW"), "WM_DELETE_WINDOW");
-    xcb_intern_atom_cookie_t wm_protocols_cookie =
-        xcb_intern_atom(state->connection, 0, strlen("WM_PROTOCOLS"), "WM_PROTOCOLS");
-    xcb_intern_atom_reply_t *wm_delete_reply    = xcb_intern_atom_reply(state->connection, wm_delete_cookie, NULL);
-    xcb_intern_atom_reply_t *wm_protocols_reply = xcb_intern_atom_reply(state->connection, wm_protocols_cookie, NULL);
-    state->wm_delete_win                        = wm_delete_reply->atom;
-    state->wm_protocols                         = wm_protocols_reply->atom;
+    xcb_intern_atom_cookie_t wm_delete_cookie    = xcb_intern_atom(state->connection, 0, strlen("WM_DELETE_WINDOW"), "WM_DELETE_WINDOW");
+    xcb_intern_atom_cookie_t wm_protocols_cookie = xcb_intern_atom(state->connection, 0, strlen("WM_PROTOCOLS"), "WM_PROTOCOLS");
+    xcb_intern_atom_reply_t *wm_delete_reply     = xcb_intern_atom_reply(state->connection, wm_delete_cookie, NULL);
+    xcb_intern_atom_reply_t *wm_protocols_reply  = xcb_intern_atom_reply(state->connection, wm_protocols_cookie, NULL);
+    state->wm_delete_win                         = wm_delete_reply->atom;
+    state->wm_protocols                          = wm_protocols_reply->atom;
 
-    xcb_change_property(state->connection, XCB_PROP_MODE_REPLACE, state->window, wm_protocols_reply->atom, 4, 32, 1,
-                        &wm_delete_reply->atom);
+    xcb_change_property(state->connection, XCB_PROP_MODE_REPLACE, state->window, wm_protocols_reply->atom, 4, 32, 1, &wm_delete_reply->atom);
 
     // Map the window to the screen
     xcb_map_window(state->connection, state->window);
@@ -548,9 +544,9 @@ keys translate_keycode(u32 wl_keycode)
 
 #if DPLATFORM_LINUX_WAYLAND
 
-#define CHECK_WL_RESULT(expr)                                                                                          \
-    {                                                                                                                  \
-        DASSERT(expr != 0);                                                                                            \
+#define CHECK_WL_RESULT(expr)                                                                                                                        \
+    {                                                                                                                                                \
+        DASSERT(expr != 0);                                                                                                                          \
     }
 //
 #include "wayland/xdg-shell-client-protocol.h"
@@ -701,8 +697,7 @@ static void wl_keyboard_keymap(void *data, struct wl_keyboard *wl_keyboard, u32 
     struct internal_state *state = data;
 }
 
-static void wl_keyboard_enter(void *data, struct wl_keyboard *wl_keyboard, u32 serial, struct wl_surface *surface,
-                              struct wl_array *keys)
+static void wl_keyboard_enter(void *data, struct wl_keyboard *wl_keyboard, u32 serial, struct wl_surface *surface, struct wl_array *keys)
 {
     DDEBUG("keyboard enter");
 }
@@ -729,8 +724,8 @@ static void wl_keyboard_leave(void *data, struct wl_keyboard *wl_keyboard, u32 s
     DDEBUG("keyboard leave");
 }
 
-static void wl_keyboard_modifiers(void *data, struct wl_keyboard *wl_keyboard, u32 serial, u32 mods_depressed,
-                                  u32 mods_latched, u32 mods_locked, u32 group)
+static void wl_keyboard_modifiers(void *data, struct wl_keyboard *wl_keyboard, u32 serial, u32 mods_depressed, u32 mods_latched, u32 mods_locked,
+                                  u32 group)
 {
 }
 
@@ -775,8 +770,7 @@ static void wl_seat_name(void *data, struct wl_seat *wl_seat, const char *name)
 struct wl_seat_listener wl_seat_listener = {.capabilities = wl_seat_capabilites, .name = wl_seat_name};
 
 // actual surface
-static void xdg_toplevel_configure(void *data, struct xdg_toplevel *xdg_toplevel, i32 width, i32 height,
-                                   struct wl_array *states)
+static void xdg_toplevel_configure(void *data, struct xdg_toplevel *xdg_toplevel, i32 width, i32 height, struct wl_array *states)
 {
     internal_state *state = data;
 }
