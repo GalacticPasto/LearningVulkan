@@ -3,15 +3,25 @@
 #include "core/asserts.h"
 #include "defines.h"
 
+#include <vulkan/vulkan.h>
+
 #define VK_CHECK(exp)                                                                                                  \
     {                                                                                                                  \
         DASSERT(exp == VK_SUCCESS);                                                                                    \
     }
 
+typedef struct vulkan_swapchain_support_info
+{
+    VkSurfaceCapabilitiesKHR surface_capabilites;
+    VkSurfaceFormatKHR      *formats;
+    VkPresentModeKHR        *presentModes;
+} vulkan_swapchain_support_info;
+
 typedef struct vulkan_device
 {
-    VkPhysicalDevice physical;
-    VkDevice         logical;
+    VkPhysicalDevice              physical;
+    VkDevice                      logical;
+    vulkan_swapchain_support_info swapchain_info;
 
     // device specific stuff
     VkPhysicalDeviceProperties       properties;
@@ -34,8 +44,7 @@ typedef struct vulkan_device
 
 typedef struct vulkan_context
 {
-    VkInstance            vk_instance;
-    VkInstanceCreateInfo *instance_info;
+    VkInstance vk_instance;
 
 #ifdef _DEBUG
     VkDebugUtilsMessengerEXT debug_messenger;

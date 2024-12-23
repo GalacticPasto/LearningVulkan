@@ -1,7 +1,9 @@
 #include "containers/darray.h"
+#include "core/asserts.h"
+#include "core/event.h"
+#include "core/input.h"
+#include "core/logger.h"
 #include "platform.h"
-#include "renderer/vulkan/vulkan_platform.h"
-#include "renderer/vulkan/vulkan_types.h"
 
 // Linux platform layer.
 #ifdef DPLATFORM_LINUX
@@ -17,21 +19,18 @@
 #include <unistd.h> // usleep
 #endif
 
-#include "core/asserts.h"
-#include "core/event.h"
-#include "core/input.h"
-#include "core/logger.h"
-
 #if DPLATFORM_LINUX_X11
-
-#define VK_USE_PLATFORM_XCB_KHR
-#include <vulkan/vulkan.h>
 
 #include <X11/XKBlib.h>   // sudo apt-get install libx11-dev
 #include <X11/Xlib-xcb.h> // sudo apt-get install libxkbcommon-x11-dev
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <xcb/xcb.h>
+
+#define VK_USE_PLATFORM_XCB_KHR
+#include "renderer/vulkan/vulkan_platform.h"
+#include "renderer/vulkan/vulkan_types.h"
+#include <vulkan/vulkan.h>
 
 typedef struct internal_state
 {
@@ -564,6 +563,11 @@ keys translate_keycode(u32 wl_keycode)
 #include <sys/mman.h>
 #include <unistd.h>
 //
+// VULKAN
+#define VK_USE_PLATFORM_WAYLAND_KHR
+#include "renderer/vulkan/vulkan_platform.h"
+#include "renderer/vulkan/vulkan_types.h"
+#include <vulkan/vulkan.h>
 
 /* Shared memory support code */
 static void randname(char *buf)
@@ -908,7 +912,7 @@ b8 platform_create_vk_surface(platform_state *plat_state, struct vulkan_context 
 {
     internal_state *state = (internal_state *)plat_state->internal_state;
 
-    DTRACE("Creating wayland surface...");
+    DINFO("Creating wayland surface...");
 
     VkWaylandSurfaceCreateInfoKHR surface_info = {};
     surface_info.sType                         = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;

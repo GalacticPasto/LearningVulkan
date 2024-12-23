@@ -13,8 +13,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(VkDebugUtilsMessageSeverityFlag
                                                  const VkDebugUtilsMessengerCallbackDataEXT *callbackData,
                                                  void                                       *userData);
 
-static void pick_physical_device();
-void        vulkan_instance_destroy();
+void vulkan_instance_destroy();
 
 b8 vulkan_initialize(renderer_backend *backend, const char *application_name, struct platform_state *plat_state)
 {
@@ -34,7 +33,6 @@ b8 vulkan_initialize(renderer_backend *backend, const char *application_name, st
     // layers
 
     VkInstanceCreateInfo instance_info = {};
-    context.instance_info              = &instance_info;
 
     instance_info.sType            = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     instance_info.pNext            = 0;
@@ -85,7 +83,7 @@ b8 vulkan_initialize(renderer_backend *backend, const char *application_name, st
     // Extensions
     const char **required_extensions = darray_create(const char *);
     darray_push(required_extensions, &VK_KHR_SURFACE_EXTENSION_NAME); // Generic surface extension
-    platform_get_specific_surface_extensions(&required_extensions);
+    platform_get_specific_surface_extensions(&required_extensions);   // platform specific extensions
 
 #ifdef _DEBUG
 
@@ -147,10 +145,6 @@ b8 vulkan_initialize(renderer_backend *backend, const char *application_name, st
 
     DINFO("VULKAN initialized");
     return true;
-}
-
-static void pick_physical_device()
-{
 }
 
 void vulkan_shutdown(struct renderer_backend *backend)
