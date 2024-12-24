@@ -1,14 +1,9 @@
 @ECHO OFF
-REM Clean Everything
+::REM Clean Everything
 
 ECHO "Cleaning everything..."
 
-make -f "Makefile.engine.windows.mak" clean
-IF %ERRORLEVEL% NEQ 0 (echo Error:%ERRORLEVEL% && exit)
-
-make -f "Makefile.testbed.windows.mak" clean
-IF %ERRORLEVEL% NEQ 0 (echo Error:%ERRORLEVEL% && exit)
-
-dir /s *.o 
+dir /s /b \obj 
+rmdir /s obj 
 
 ECHO "All assemblies cleaned successfully."

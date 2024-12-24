@@ -7,7 +7,7 @@ EXTENSION := .exe
 COMPILER_FLAGS := -g -Wno-missing-braces -fdeclspec #-fPIC
 INCLUDE_FLAGS := -Iengine\src -Itestbed\src 
 LINKER_FLAGS := -g -lengine.lib -L$(OBJ_DIR)\engine -L$(BUILD_DIR) #-Wl,-rpath,.
-DEFINES := -D_DEBUG -DKIMPORT
+DEFINES := -D_DEBUG -DDIMPORT
 
 # Make does not offer a recursive wildcard function, so here's one:
 rwildcard=$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
@@ -41,3 +41,4 @@ clean: # clean build directory
 $(OBJ_DIR)/%.c.o: %.c # compile .c to .c.o object
 	@echo   $<...
 	@clang $< $(COMPILER_FLAGS) -c -o $@ $(DEFINES) $(INCLUDE_FLAGS)
+

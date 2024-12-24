@@ -3,6 +3,7 @@
 #ifdef DPLATFORM_WINDOWS
 
 #include "containers/darray.h"
+#include "core/event.h"
 #include "core/input.h"
 #include "core/logger.h"
 
@@ -234,7 +235,8 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARA
             // Notify the OS that erasing will be handled by the application to prevent flicker.
             return 1;
         case WM_CLOSE:
-            // TODO: Fire an event for the application to quit.
+            event_context context = {};
+            event_fire(EVENT_CODE_APPLICATION_QUIT, 0, context);
             return 0;
         case WM_DESTROY:
             PostQuitMessage(0);

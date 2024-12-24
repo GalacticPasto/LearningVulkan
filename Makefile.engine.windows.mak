@@ -7,7 +7,7 @@ EXTENSION := .dll
 COMPILER_FLAGS := -g -fdeclspec #-fPIC
 INCLUDE_FLAGS := -Iengine\src -I$(VULKAN_SDK)\include
 LINKER_FLAGS := -g -shared -luser32 -lvulkan-1 -L$(VULKAN_SDK)\Lib -L$(OBJ_DIR)\engine
-DEFINES := -D_DEBUG -DKEXPORT -D_CRT_SECURE_NO_WARNINGS
+DEFINES := -D_DEBUG -DDEXPORT -D_CRT_SECURE_NO_WARNINGS
 
 # Make does not offer a recursive wildcard function, so here's one:
 rwildcard=$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
