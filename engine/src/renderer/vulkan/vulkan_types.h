@@ -35,10 +35,26 @@ typedef struct vulkan_swapchain
     VkImageView   *image_views;
 } vulkan_swapchain;
 
+typedef enum vulkan_command_buffer_state
+{
+    COMMAND_BUFFER_STATE_READY,
+    COMMAND_BUFFER_STATE_RECORDING,
+    COMMAND_BUFFER_STATE_IN_RENDER_PASS,
+    COMMAND_BUFFER_STATE_RECORDING_ENDED,
+    COMMAND_BUFFER_STATE_SUBMITTED,
+    COMMAND_BUFFER_STATE_NOT_ALLOCATED
+} vulkan_command_buffer_state;
+
+typedef struct vulkan_command_buffer
+{
+    VkCommandBuffer handle;
+
+    vulkan_command_buffer_state state;
+} vulkan_command_buffer;
+
 typedef struct vulkan_renderpass
 {
     VkRenderPass handle;
-
 } vulkan_renderpass;
 
 typedef struct vulkan_device
@@ -64,6 +80,8 @@ typedef struct vulkan_device
     VkQueue transfer_queue;
     VkQueue present_queue;
 
+    VkCommandPool graphics_command_pool;
+
 } vulkan_device;
 
 typedef struct vulkan_context
@@ -86,5 +104,7 @@ typedef struct vulkan_context
 
     b8 recreating_swapchain;
 
-    vulkan_renderpass vk_renderpass;
+    vulkan_renderpass      vk_renderpass;
+    vulkan_command_buffer *graphics_command_buffers;
+
 } vulkan_context;

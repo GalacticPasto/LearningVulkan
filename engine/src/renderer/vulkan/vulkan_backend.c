@@ -1,7 +1,9 @@
 #include "vulkan_backend.h"
 #include "containers/darray.h"
+#include "core/dmemory.h"
 #include "core/dstring.h"
 #include "core/logger.h"
+#include "vulkan_command_buffer.h"
 #include "vulkan_device.h"
 #include "vulkan_platform.h"
 #include "vulkan_renderpass.h"
@@ -14,6 +16,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(VkDebugUtilsMessageSeverityFlag
                                                  const VkDebugUtilsMessengerCallbackDataEXT *callbackData, void *userData);
 
 void vulkan_instance_destroy();
+void vk_create_command_buffers();
 
 b8 vulkan_initialize(renderer_backend *backend, const char *application_name, struct platform_state *plat_state)
 {
@@ -154,12 +157,25 @@ b8 vulkan_initialize(renderer_backend *backend, const char *application_name, st
         return false;
     }
 
+    vk_create_command_buffers();
+
     DINFO("VULKAN initialized");
     return true;
 }
 
 void vulkan_shutdown(struct renderer_backend *backend)
 {
+
+    DDEBUG("Destroying command buffers...");
+    for (i32 i = 0; i < context.vk_swapchain.image_count; i++)
+    {
+        vk_command_buffer_free(&context, context.vk_device.graphics_command_pool, &context.graphics_command_buffers[i]);
+    }
+    darray_destroy(context.graphics_command_buffers);
+    context.graphics_command_buffers = 0;
+
+    DDEBUG("Destroying command pools...");
+    vkDestroyCommandPool(context.vk_device.logical, context.vk_device.graphics_command_pool, 0);
 
     DDEBUG("Destroying renderpass...");
     DASSERT(vk_destroy_renderpass(&context));
@@ -220,4 +236,23 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(VkDebugUtilsMessageSeverityFlag
             break;
     }
     return VK_FALSE;
+}
+
+void vk_create_command_buffers()
+{
+    if (!context.graphics_command_buffers)
+    {
+        context.graphics_command_buffers = darray_reserve(vulkan_command_buffer, context.vk_swapchain.image_count);
+
+        for (i32 i = 0; i < context.vk_swapchain.image_count; i++)
+        {
+            dzero_memory(&context.graphics_command_buffers[i], sizeof(vulkan_command_buffer));
+        }
+    }
+
+    for (i32 i = 0; i < context.vk_swapchain.image_count; i++)
+    {
+        vk_command_buffer_allocate(&context, context.vk_device.graphics_command_pool, &context.graphics_command_buffers[i]);
+    }
+    DINFO("Vulkan Command buffers created");
 }

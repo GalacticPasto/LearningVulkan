@@ -104,6 +104,18 @@ b8 vk_create_device(vulkan_context *context)
     vkGetDeviceQueue(context->vk_device.logical, context->vk_device.graphics_queue_index, 0, &context->vk_device.graphics_queue);
     vkGetDeviceQueue(context->vk_device.logical, context->vk_device.transfer_queue_index, 0, &context->vk_device.transfer_queue);
     vkGetDeviceQueue(context->vk_device.logical, context->vk_device.present_queue_index, 0, &context->vk_device.present_queue);
+    DINFO("Obtainded queues");
+
+    // get the commandPools
+
+    VkCommandPoolCreateInfo pool_info = {};
+    pool_info.sType                   = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    pool_info.pNext                   = 0;
+    pool_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    pool_info.queueFamilyIndex        = context->vk_device.graphics_queue_index;
+
+    VK_CHECK(vkCreateCommandPool(context->vk_device.logical, &pool_info, 0, &context->vk_device.graphics_command_pool));
+    DINFO("Graphics command pools created");
 
     return true;
 }
