@@ -20,12 +20,12 @@ typedef struct vulkan_swapchain_support_info
     VkPresentModeKHR        *present_modes;
 } vulkan_swapchain_support_info;
 
-typedef struct vk_image
+typedef struct vulkan_image
 {
     VkImage handle;
-} vk_image;
+} vulkan_image;
 
-typedef struct vk_swapchain
+typedef struct vulkan_swapchain
 {
     VkSwapchainKHR handle;
     VkFormat       image_format;
@@ -33,7 +33,13 @@ typedef struct vk_swapchain
     u32            image_count;
     VkImage       *images;
     VkImageView   *image_views;
-} vk_swapchain;
+} vulkan_swapchain;
+
+typedef struct vulkan_renderpass
+{
+    VkRenderPass handle;
+
+} vulkan_renderpass;
 
 typedef struct vulkan_device
 {
@@ -74,9 +80,11 @@ typedef struct vulkan_context
     // vulkan surface
     VkSurfaceKHR vk_surface;
 
-    vk_swapchain vk_swapchain;
-    u32          image_index; // to track the current VkImage
-    u32          current_frame;
+    vulkan_swapchain vk_swapchain;
+    u32              image_index; // to track the current VkImage
+    u32              current_frame;
 
     b8 recreating_swapchain;
+
+    vulkan_renderpass vk_renderpass;
 } vulkan_context;

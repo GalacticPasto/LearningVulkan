@@ -4,6 +4,7 @@
 #include "core/logger.h"
 #include "vulkan_device.h"
 #include "vulkan_platform.h"
+#include "vulkan_renderpass.h"
 #include "vulkan_swapchain.h"
 #include "vulkan_types.h"
 
@@ -147,12 +148,21 @@ b8 vulkan_initialize(renderer_backend *backend, const char *application_name, st
         return false;
     }
 
+    if (!vk_create_renderpass(&context))
+    {
+        DERROR("Renderpass creation failed");
+        return false;
+    }
+
     DINFO("VULKAN initialized");
     return true;
 }
 
 void vulkan_shutdown(struct renderer_backend *backend)
 {
+
+    DDEBUG("Destroying renderpass...");
+    DASSERT(vk_destroy_renderpass(&context));
 
     DDEBUG("Destroying swapchain...");
     DASSERT(vk_destroy_swapchain(&context));
